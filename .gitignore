@@ -1,0 +1,16 @@
+# RStudio files
+.Rproj.user/
+SEtools.Rproj
+.Rbuildignore
+
+# knitr and R markdown default cache directories
+/*_cache/
+/cache/
+# Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
+rsconnect/
+# History files
+.RData
+.Rhistory
+.Rapp.history
+README.Rmd
+README.html

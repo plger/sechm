@@ -1,0 +1,251 @@
+---
+title: "sechm"
+author:
+- name: Pierre-Luc Germain
+  affiliation:
+  - D-HEST Institute for Neurosciences, ETH Zürich
+  - Laboratory of Statistical Bioinformatics, University Zürich
+package: sechm
+output:
+  BiocStyle::html_document:
+        fig_height: 3.5
+abstract: |
+  Showcases the use of sechm to plot annotated heatmaps from SummarizedExperiment objects.
+vignette: |
+  %\VignetteIndexEntry{sechm}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include=FALSE}
+library(BiocStyle)
+```
+
+# Getting started
+
+The `r Rpackage("sechm")` package is a wrapper around the 
+*[ComplexHeatmap](https://jokergoo.github.io/ComplexHeatmap-reference/book/)* 
+package to facilitate the creation of annotated heatmaps from objects of the 
+_Bioconductor_ class `r Biocpkg("SummarizedExperiment")` 
+(and extensions thereof).
+
+## Package installation
+
+```{r, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("sechm")
+```
+
+Or, to install the latest development version:
+
+```{r, eval=FALSE}
+BiocManager::install("plger/sechm")
+```
+
+## Example data
+
+To showcase the main functions, we will use an example object which contains (a 
+subset of) RNAseq of mouse hippocampi after Forskolin-induced long-term 
+potentiation:
+
+```{r}
+suppressPackageStartupMessages({
+  library(SummarizedExperiment)
+  library(sechm)
+})
+data("SE", package="sechm")
+SE
+```
+
+This is taken from 
+[Chen et al., 2017](https://doi.org/10.3389/fnmol.2017.00039).
+
+# Example usage
+
+## Basic functionalities
+
+The `sechm` function simplifies the generation of heatmaps from 
+`SummarizedExperiment`. It minimally requires, as input, a 
+`SummarizedExperiment` object and a set of genes (or features, i.e. rows of 
+`sechm`) to plot:
+
+```{r}
+g <- c("Egr1", "Nr4a1", "Fos", "Egr2", "Sgk1", "Arc", "Dusp1", "Fosb", "Sik1")
+sechm(SE, genes=g)
+# with row scaling:
+sechm(SE, genes=g, do.scale=TRUE)
+```
+
+The assay can be selected, and any `rowData` or `colData` columns can be 
+specified as annotation:
+
+```{r}
+rowData(SE)$meanLogCPM <- rowMeans(assays(SE)$logcpm)
+sechm(SE, genes=g, assayName="logFC", anno_columns=c("Condition","Time"), anno_rows=c("meanLogCPM"))
+```
+
+Column names are ommitted by default, but can be displayed:
+
+```{r}
+sechm(SE, genes=g, do.scale=TRUE, show_colnames=TRUE)
+```
+
+
+Since `sechm` uses the 
+*[ComplexHeatmap](https://jokergoo.github.io/ComplexHeatmap-reference/book/)* 
+engine for plotting, any argument of `ComplexHeatmap::Heatmap` can be passed:
+
+```{r}
+sechm(SE, genes=g, do.scale=TRUE, row_title="My genes")
+```
+When plotting a lot of rows, by default row names are not shown (can be 
+overriden), but specific genes can be highlighted with the `mark` argument:
+
+```{r}
+sechm(SE, genes=row.names(SE), mark=g, do.scale=TRUE, anno_columns=c("Condition","Time"))
+```
+We can also add gaps using the same columns:
+
+```{r}
+sechm(SE, genes=g, do.scale=TRUE, anno_columns="Time", gaps_at="Condition")
+```
+
+
+## Row ordering
+
+By default, rows are _sorted_ using the MDS angle method (can be altered with 
+the `sort.method` argument); this can be disabled with:
+
+```{r}
+# reverts to clustering:
+sechm(SE, genes=row.names(SE), do.scale=TRUE, sortRowsOn=NULL)
+# no reordering:
+sechm(SE, genes=row.names(SE), do.scale=TRUE, sortRowsOn=NULL, 
+      cluster_rows=FALSE)
+```
+It is also possible to combine sorting with clusters using the `toporder` argument, or using gaps:. 
+
+```{r}
+# we first cluster rows, and save the clusters in the rowData:
+rowData(SE)$cluster <- as.character(kmeans(t(scale(t(assay(SE)))),5)$cluster)
+sechm(SE, genes=head(row.names(SE),30), do.scale=TRUE, toporder="cluster", 
+      anno_rows="cluster", show_rownames=FALSE)
+sechm(SE, genes=head(row.names(SE),30), do.scale=TRUE, gaps_row="cluster",
+      show_rownames=FALSE)
+```
+
+## Color scale
+
+`sechm` tries to guess whether the data plotted are centered around zero, and 
+adjusts the scale accordingly (this can be disable with `breaks=FALSE`). It 
+also performs a quantile capping to avoid extreme values taking most of the 
+color scale, which is especially relevant when plotting for instance 
+fold-changes. This can be controlled with the `breaks` argument. Consider the 
+three following examples:
+
+```{r, fig.width=9}
+g2 <- c(g,"Gm14288",tail(row.names(SE)))
+draw(
+    sechm(SE, genes=g2, assayName="logFC", breaks=1, column_title="breaks=1") + 
+    sechm(SE, genes=g2, assayName="logFC", breaks=0.995, 
+          column_title="breaks=0.995", name="logFC(2)") + 
+    sechm(SE, genes=g2, assayName="logFC", breaks=0.985, 
+          column_title="breaks=0.985", name="logFC(3)"),
+    merge_legends=TRUE)
+```
+
+With `breaks=1`, the scale is made symmetric, but not quantile capping is 
+performed. In this way, most of the colorscale is taken by the difference 
+between one datapoint (first gene) and the rest, making it difficult to 
+distinguish patterns in the genes at the bottom. Instead, with `breaks=0.985`, 
+the color scale is linear up until the 0.985 quantile of the data, and ordinal 
+after this. This reduces our capacity to distinguish variations between the 
+extreme values, but enables us to visualize the others better.
+
+Manual breaks can also be defined. The colors themselves can be passed as 
+follows:
+
+```{r}
+sechm(SE, genes=g2, hmcols=viridisLite::cividis(10))
+```
+
+## Annotation colors
+
+Annotation colors can be passed with the `anno_colors` argument, but the 
+simplest is to store them in the object's metadata:
+
+```{r}
+metadata(SE)$anno_colors
+metadata(SE)$anno_colors$Condition <- c(Control="white", Forskolin="black")
+sechm(SE, genes=g2, anno_columns="Condition")
+```
+
+Heatmap colors can be passed on in the same way:
+```{r colors_in_object}
+metadata(SE)$hmcols <- c("darkred","white","darkblue")
+sehm(SE, g, do.scale = TRUE)
+```
+
+Finally, it is also possible to set colors as global options:
+
+```{r colors_in_options}
+options("sechm_def_hmcols"=c("white","grey","black"))
+sehm(SE, g, do.scale = TRUE)
+```
+
+At the moment, the following arguments can be set as global options:
+`assayName`, `hmcols`, `anno_columns`, `anno_rows`, `anno_colors`, `gaps_at`, 
+`breaks`. Options must be set with the prefix `sechm_def_`, followed by the 
+name of the argument.
+
+To remove the predefined colors:
+
+```{r}
+resetAllsechmOptions()
+metadata(SE)$hmcols <- NULL
+metadata(SE)$anno_colors <- NULL
+```
+
+In order of priority, the arguments in the function call trump the object's 
+metadata, which trumps the global options.
+
+# crossHm
+
+Because `sechm` produces a `Heatmap` object from 
+[ComplexHeatmap](https://jokergoo.github.io/ComplexHeatmap-reference/book/), it 
+is possible to combine them:
+
+```{r two_heatmaps}
+sechm(SE, genes=g)
+```
+
+However, doing so involves manual work to ensure that the labels and colors are 
+nice and coherent, and that the rows names match. As a convenience, we provide 
+the `crossHm` function to handle these issues. `crossHm` works with a list of 
+`SummarizedExperiment` objects:
+
+```{r crossHm}
+# we build another SE object:
+SE2 <- SE
+assays(SE2)$logcpm <- jitter(assays(SE2)$logcpm, factor=1000)
+crossHm(list(SE1=SE, SE2=SE2), g, do.scale = TRUE, 
+        anno_columns=c("Condition","Time"))
+```
+
+Scaling is applied to the datasets separately. A unique color scale can be 
+enforced:
+
+```{r crosshm2}
+crossHm(list(SE1=SE, SE2=SE2), g, do.scale = TRUE, 
+        anno_columns=c("Condition","Time"), uniqueScale = TRUE)
+```
+
+
+<br/><br/>
+
+# Session info {.unnumbered}
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
