@@ -82,7 +82,7 @@ specified as annotation:
 
 ```{r}
 rowData(SE)$meanLogCPM <- rowMeans(assays(SE)$logcpm)
-sechm(SE, genes=g, assayName="logFC", anno_columns=c("Condition","Time"), anno_rows=c("meanLogCPM"))
+sechm(SE, genes=g, assayName="logFC", top_annotation=c("Condition","Time"), left_annotation=c("meanLogCPM"))
 ```
 
 Column names are ommitted by default, but can be displayed:
@@ -103,12 +103,13 @@ When plotting a lot of rows, by default row names are not shown (can be
 overriden), but specific genes can be highlighted with the `mark` argument:
 
 ```{r}
-sechm(SE, genes=row.names(SE), mark=g, do.scale=TRUE, anno_columns=c("Condition","Time"))
+sechm(SE, genes=row.names(SE), mark=g, do.scale=TRUE, top_annotation=c("Condition","Time"))
 ```
+
 We can also add gaps using the same columns:
 
 ```{r}
-sechm(SE, genes=g, do.scale=TRUE, anno_columns="Time", gaps_at="Condition")
+sechm(SE, genes=g, do.scale=TRUE, top_annotation="Time", gaps_at="Condition")
 ```
 
 
@@ -130,7 +131,7 @@ It is also possible to combine sorting with clusters using the `toporder` argume
 # we first cluster rows, and save the clusters in the rowData:
 rowData(SE)$cluster <- as.character(kmeans(t(scale(t(assay(SE)))),5)$cluster)
 sechm(SE, genes=head(row.names(SE),30), do.scale=TRUE, toporder="cluster", 
-      anno_rows="cluster", show_rownames=FALSE)
+      left_annotation="cluster", show_rownames=FALSE)
 sechm(SE, genes=head(row.names(SE),30), do.scale=TRUE, gaps_row="cluster",
       show_rownames=FALSE)
 ```
@@ -178,7 +179,7 @@ simplest is to store them in the object's metadata:
 ```{r}
 metadata(SE)$anno_colors
 metadata(SE)$anno_colors$Condition <- c(Control="white", Forskolin="black")
-sechm(SE, genes=g2, anno_columns="Condition")
+sechm(SE, genes=g2, top_annotation="Condition")
 ```
 
 Heatmap colors can be passed on in the same way:
@@ -230,7 +231,7 @@ the `crossHm` function to handle these issues. `crossHm` works with a list of
 SE2 <- SE
 assays(SE2)$logcpm <- jitter(assays(SE2)$logcpm, factor=1000)
 crossHm(list(SE1=SE, SE2=SE2), g, do.scale = TRUE, 
-        anno_columns=c("Condition","Time"))
+        top_annotation=c("Condition","Time"))
 ```
 
 Scaling is applied to the datasets separately. A unique color scale can be 
@@ -238,7 +239,7 @@ enforced:
 
 ```{r crosshm2}
 crossHm(list(SE1=SE, SE2=SE2), g, do.scale = TRUE, 
-        anno_columns=c("Condition","Time"), uniqueScale = TRUE)
+        top_annotation=c("Condition","Time"), uniqueScale = TRUE)
 ```
 
 

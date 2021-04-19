@@ -87,6 +87,7 @@ sortRows <- function(x, z=FALSE, toporder=NULL, na.rm=FALSE, method="MDS_angle",
   assays(se)[[assayName]]
 }
 
+#' @importFrom grDevices colorRampPalette
 .getHMcols <- function(cols=NULL, n=101){
   if(is.null(cols)) cols <- .getDef("hmcols")
   if(is.function(cols)) return(cols)
@@ -365,4 +366,57 @@ scale2 <- function(x){
     return(NULL)
   }
   as.data.frame(CD)[,x,drop=FALSE]
+}
+
+#' @importFrom ComplexHeatmap HeatmapAnnotation
+.prepareAnnoDF <- function(an, anno_colors, fields, whichComplex=NULL,
+                           show_legend=TRUE, show_annotation_name=TRUE,
+                           dropEmptyLevels=TRUE, anno_name_side=NULL,
+                           highlight=NULL){
+  if(!is.null(whichComplex))
+    whichComplex <- match.arg(whichComplex, c("row","column"))
+  an <- an[,intersect(fields, colnames(an)),drop=FALSE]
+  an <- as.data.frame(an)
+  if(ncol(an)==0){
+    an <- NULL
+  }else{
+    for(i in colnames(an)){
+      if(is.factor(an[[i]])){
+        if(dropEmptyLevels) an[[i]] <- droplevels(an[[i]])
+      }
+      if(is.logical(an[[i]])){
+        an[[i]] <- factor(as.character(an[[i]]),levels=c("FALSE","TRUE"))
+        if(!(i %in% names(anno_colors))){
+          anno_colors[[i]] <- c("FALSE"="white", "TRUE"="darkblue")
+        }
+      }else if(!is.null(anno_colors[[i]]) &&
+               !is.function(anno_colors[[i]])){
+        if(i %in% names(anno_colors)){
+          w <- intersect(names(anno_colors[[i]]),unique(an[[i]]))
+          if(length(w)==0){
+            anno_colors[[i]] <- NULL
+          }else{
+            anno_colors[[i]] <- anno_colors[[i]][w]
+          }
+        }
+      }
+    }
+  }
+  if(is.null(whichComplex)) return(list(an=an, anno_colors=anno_colors))
+  if(is.null(an)) return(NULL)
+  anno_colors <- anno_colors[intersect(names(anno_colors),colnames(an))]
+  if(length(anno_colors)==0){
+    an <- HeatmapAnnotation(df=an, show_legend=show_legend, na_col="white",
+                            which=whichComplex,
+                            annotation_name_side=anno_name_side,
+                            show_annotation_name=show_annotation_name,
+                            highlight=highlight )
+  }else{
+    an <- HeatmapAnnotation(df=an, show_legend=show_legend, na_col="white",
+                            which=whichComplex, col=anno_colors,
+                            annotation_name_side=anno_name_side,
+                            show_annotation_name=show_annotation_name,
+                            highlight=highlight)
+  }
+  an
 }

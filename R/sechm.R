@@ -1,9 +1,7 @@
-#' Heatmap wrapper for
-#' \code{\link[SummarizedExperiment]{SummarizedExperiment-class}}.
-#' @name SE-heatmap
-#' @rdname SE-heatmap
-#' @aliases sehm sechm
+#' sechm
 #'
+#' ComplexHeatmap wrapper for
+#' \code{\link[SummarizedExperiment]{SummarizedExperiment-class}}.
 #'
 #' @param se A \code{\link[SummarizedExperiment]{SummarizedExperiment-class}}.
 #' @param genes An optional vector of genes (i.e. row names of `se`)
@@ -29,8 +27,18 @@
 #' @param gaps_at Columns of `colData` to use to establish gaps between columns.
 #' @param gaps_row Passed to the heatmap function; if missing, will
 #' be set automatically according to toporder.
-#' @param anno_rows Columns of `rowData` to use for annotation.
-#' @param anno_columns Columns of `colData` to use for annotation.
+#' @param left_annotation Columns of `rowData` to use for left annotation.
+#' Alternatively, an `HeatmapAnnotation` object.
+#' @param right_annotation Columns of `rowData` to use for left annotation.
+#' Alternatively, an `HeatmapAnnotation` object.
+#' @param anno_rows Deprecated. Use `left_annotation` or `right_annotation`
+#' instead.
+#' @param top_annotation Columns of `colData` to use for top annotation.
+#' Alternatively, an `HeatmapAnnotation` object.
+#' @param bottom_annotation Columns of `colData` to use for bottom annotation.
+#' Alternatively, an `HeatmapAnnotation` object.
+#' @param anno_columns Deprecated. Use `top_annotation` or `bottom_annotation`
+#' instead.
 #' @param anno_colors List of colors to use for annotation.
 #' @param anno_rows_title_side Side (top or bottom) of row annotation names
 #' @param name The name of the heatmap, eventually appearing as title of the
@@ -43,6 +51,8 @@
 #' FALSE)
 #' @param mark An optional vector of gene names to highlight.
 #' @param right_annotation Passed to `ComplexHeatmap::Heatmap`
+#' @param isMult Logical; used to silence labels when plotting mulitple heatmaps
+#' @param show_heatmap_legend Logical; whether to show heatmap legend
 #' @param ... Further arguments passed to `pheatmap` (`sehm`) or `Heatmap`
 #' (`sechm`).
 #'
@@ -52,26 +62,25 @@
 #' data("SE", package="sechm")
 #' sehm(SE, row.names(SE)[1:10], do.scale=TRUE)
 #'
-#' @param isMult Logical; used to silence labels when plotting mulitple heatmaps
-#' @param show_heatmap_legend Logical; whether to show heatmap legend
-#'
 #' @importFrom circlize colorRamp2
 #' @importFrom methods is
 #' @import SummarizedExperiment
 #' @import ComplexHeatmap
 #' @export
+#' @name sechm
+#' @rdname sechm
 sechm <- function(se, genes, do.scale=FALSE, assayName=.getDef("assayName"),
-                  sortRowsOn=seq_len(ncol(se)), cluster_cols=FALSE,
+                  name=NULL, sortRowsOn=seq_len(ncol(se)), cluster_cols=FALSE,
                   cluster_rows=is.null(sortRowsOn), toporder=NULL, hmcols=NULL,
                   breaks=.getDef("breaks"), gaps_at=.getDef("gaps_at"),
-                  gaps_row=NULL, anno_rows=.getDef("anno_rows"),
-                  anno_columns=.getDef("anno_columns"), name=NULL,
+                  gaps_row=NULL, left_annotation=.getDef("anno_rows"),
+                  right_annotation=NULL, top_annotation=.getDef("anno_columns"),
+                  bottom_annotation=NULL, anno_rows=NULL, anno_columns=NULL,
                   anno_colors=list(), show_rownames=NULL, show_colnames=FALSE,
                   isMult=FALSE, show_heatmap_legend=!isMult,
-                  show_annotation_legend=TRUE, mark=NULL,
+                  show_annotation_legend=TRUE, mark=NULL, na_col="white",
                   annorow_title_side=ifelse(show_colnames,"bottom","top"),
-                  right_annotation=NULL, includeMissing=FALSE,
-                  sort.method="MDS_angle", ...){
+                  includeMissing=FALSE, sort.method="MDS_angle", ...){
 
   assayName <- .chooseAssay(se, assayName, returnName = TRUE)
   if(is.null(name)){
@@ -102,36 +111,75 @@ sechm <- function(se, genes, do.scale=FALSE, assayName=.getDef("assayName"),
   breaks <- cscale$breaks
   hmcols <- circlize::colorRamp2(breaks, cscale$hmcols)
 
-
   anno_colors <- .getAnnoCols(se, anno_colors)
 
-  anr <- .prepareAnnoDF( rowData(se)[row.names(x),,drop=FALSE], anno_colors,
-                         anno_rows, whichComplex="row",
-                         show_legend=show_annotation_legend,
-                         show_annotation_name=!is.na(annorow_title_side),
-                         anno_name_side=ifelse(is.na(annorow_title_side), "top",
-                                               annorow_title_side))
+  if(!is.null(mark) && length(mark <- which(row.names(x) %in% mark))>0){
+    mark <- anno_mark(mark, row.names(x)[mark], which="row")
+  }else{
+    mark <- NULL
+  }
 
-  an <- .prepareAnnoDF( colData(se), anno_colors, anno_columns,
-                        whichComplex="column",
-                        show_legend=(show_annotation_legend && !isMult),
-                        show_annotation_name=!isMult,
-                        anno_name_side="right" )
+  if(!is(left_annotation,"HeatmapAnnotation")){
+    if(is.null(left_annotation)){
+      left_annotation <- anno_rows
+    }else if(!is.null(anno_rows)){
+      warning("anno_rows ignored")
+    }
+    if(is.character(left_annotation)){
+      left_annotation <- .prepareAnnoDF(
+        rowData(se)[row.names(x),,drop=FALSE], anno_colors,
+        left_annotation, whichComplex="row", show_legend=show_annotation_legend,
+        show_annotation_name=!is.na(annorow_title_side),
+        anno_name_side=ifelse(is.na(annorow_title_side), "top",
+                              annorow_title_side))
+    }
+  }
+  if(!is(right_annotation,"HeatmapAnnotation") && !is.null(right_annotation)){
+    if(is.character(right_annotation)){
+      right_annotation <- .prepareAnnoDF(
+        rowData(se)[row.names(x),,drop=FALSE], anno_colors,
+        right_annotation, whichComplex="row",
+        show_legend=show_annotation_legend,
+        show_annotation_name=!is.na(annorow_title_side), highlight=mark)
+    }
+  }
+  if(is.null(right_annotation) && !is.null(mark)){
+    right_annotation <- rowAnnotation(highlight=mark)
+  }
+
+  if(!is(top_annotation,"HeatmapAnnotation") && !is.null(top_annotation)){
+    if(is.null(top_annotation)){
+      top_annotation <- anno_columns
+    }else if(!is.null(anno_columns)){
+      warning("anno_columns ignored")
+    }
+    if(is.character(top_annotation)){
+      top_annotation <- .prepareAnnoDF(
+        colData(se), anno_colors, top_annotation, whichComplex="column",
+        show_legend=(show_annotation_legend && !isMult),
+        show_annotation_name=!isMult, anno_name_side="right" )
+    }
+  }
+  if(!is(bottom_annotation,"HeatmapAnnotation") && !is.null(top_annotation)){
+    if(is.character(bottom_annotation)){
+      bottom_annotation <- .prepareAnnoDF(
+        colData(se), anno_colors, bottom_annotation, whichComplex="column",
+        show_legend=(show_annotation_legend && !isMult),
+        show_annotation_name=!isMult, anno_name_side="right" )
+    }
+  }
 
   gaps_col <- .getGaps(gaps_at, colData(se), silent=TRUE)
   gaps_row <- .getGaps(gaps_row, rowData(se)[row.names(x),,drop=FALSE])
 
   if(is.null(show_rownames)) show_rownames <- nrow(x)<50 && is.null(mark)
   if(nrow(x)<=2) cluster_rows <- FALSE
-  if(!is.null(mark) && is.null(right_annotation)){
-      mark <- which(row.names(x) %in% mark)
-      right_annotation <- rowAnnotation(mark=anno_mark(mark,
-                                                       row.names(x)[mark]))
-  }
-  Heatmap(x, col=hmcols, na_col="white", name=name,
-          show_row_names=show_rownames, show_column_names=show_colnames,
-          top_annotation=an, left_annotation=anr, row_split=gaps_row,
-          column_split=gaps_col, show_heatmap_legend=show_heatmap_legend,
-          cluster_rows=cluster_rows, cluster_columns=cluster_cols,
-          right_annotation=right_annotation, ...)
+
+  Heatmap( x, col=hmcols, na_col=na_col, name=name,
+    show_row_names=show_rownames, show_column_names=show_colnames,
+    row_split=gaps_row, column_split=gaps_col, cluster_rows=cluster_rows,
+    show_heatmap_legend=show_heatmap_legend, cluster_columns=cluster_cols,
+    top_annotation=top_annotation, left_annotation=left_annotation,
+    bottom_annotation=bottom_annotation, right_annotation=right_annotation,
+    ...)
 }

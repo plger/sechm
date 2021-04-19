@@ -1,15 +1,32 @@
 Package: sechm
 Type: Package
 Title: sechm: Complex Heatmaps from a SummarizedExperiment
-Version: 0.0.99
-Depends: R (>= 4.0)
+Version: 0.99.2
+Depends: R (>= 4.1)
 Authors@R: person("Pierre-Luc", "Germain", email="pierre-luc.germain@hest.ethz.ch", role=c("cre","aut"), comment=c(ORCID="0000-0003-3418-4218"))
-Description: sechm provides a simple interface between ComplexHeatmap and SummarizedExperiment objects. It enables plotting annotated heatmaps from SE objects, with easy access to rowData and colData columns, and implements a number of features to make the generation of heatmaps easier and more flexible.
-Imports: S4Vectors, SummarizedExperiment, seriation, ComplexHeatmap, circlize, methods, randomcoloR, stats, grid
-Suggests: BiocStyle, knitr, rmarkdown, ggplot2
+Description:
+    sechm provides a simple interface between SummarizedExperiment objects and the ComplexHeatmap package.
+    It enables plotting annotated heatmaps from SE objects, with easy access to rowData and colData columns, 
+    and implements a number of features to make the generation of heatmaps easier and more flexible.
+    These functionalities used to be part of the SEtools package.
+Imports:
+    S4Vectors,
+    SummarizedExperiment,
+    seriation,
+    ComplexHeatmap,
+    circlize,
+    methods,
+    randomcoloR,
+    stats,
+    grid,
+    grDevices
+Suggests:
+    BiocStyle,
+    knitr,
+    rmarkdown
 biocViews: GeneExpression, Visualization
 VignetteBuilder: knitr 
-License: GPL
+License: GPL-3
 Encoding: UTF-8
 RoxygenNote: 7.1.1
 BugReports: https://github.com/plger/sechm
