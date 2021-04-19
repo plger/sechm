@@ -82,6 +82,10 @@ sechm <- function(se, genes, do.scale=FALSE, assayName=.getDef("assayName"),
                   annorow_title_side=ifelse(show_colnames,"bottom","top"),
                   includeMissing=FALSE, sort.method="MDS_angle", ...){
 
+  if(!is.null(anno_rows) || !is.null(anno_columns))
+    warning("anno_rows and anno_columns are deprecated; please use ",
+            "top_annotation and left_annotation instead.")
+
   assayName <- .chooseAssay(se, assayName, returnName = TRUE)
   if(is.null(name)){
       if(is.numeric(assayName)){
