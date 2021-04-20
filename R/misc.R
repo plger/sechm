@@ -138,7 +138,7 @@ getBreaks <- function(x, n, split.prop=0.98, symmetric=TRUE){
   xr <- seq(from=minVal, to=q, length.out=floor(split.prop*n))
   n <- n-length(xr)
   if(n>0){
-    q <- quantile(as.numeric(x)[which(x>q)],(1:n)/n, na.rm=TRUE)
+    q <- quantile(as.numeric(x)[which(x>q)],seq_len(n)/n, na.rm=TRUE)
     xr <- c(xr,as.numeric(q))
   }
   if(any(duplicated(xr))){
