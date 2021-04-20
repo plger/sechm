@@ -146,6 +146,7 @@ fold-changes. This can be controlled with the `breaks` argument. Consider the
 three following examples:
 
 ```{r, fig.width=9}
+library(ComplexHeatmap)
 g2 <- c(g,"Gm14288",tail(row.names(SE)))
 draw(
     sechm(SE, genes=g2, assayName="logFC", breaks=1, column_title="breaks=1") + 
@@ -185,14 +186,14 @@ sechm(SE, genes=g2, top_annotation="Condition")
 Heatmap colors can be passed on in the same way:
 ```{r colors_in_object}
 metadata(SE)$hmcols <- c("darkred","white","darkblue")
-sehm(SE, g, do.scale = TRUE)
+sechm(SE, g, do.scale = TRUE)
 ```
 
 Finally, it is also possible to set colors as global options:
 
 ```{r colors_in_options}
 options("sechm_def_hmcols"=c("white","grey","black"))
-sehm(SE, g, do.scale = TRUE)
+sechm(SE, g, do.scale = TRUE)
 ```
 
 At the moment, the following arguments can be set as global options:
@@ -203,7 +204,7 @@ name of the argument.
 To remove the predefined colors:
 
 ```{r}
-resetAllsechmOptions()
+resetAllSechmOptions()
 metadata(SE)$hmcols <- NULL
 metadata(SE)$anno_colors <- NULL
 ```
