@@ -40,7 +40,7 @@
 #' @param anno_columns Deprecated. Use `top_annotation` or `bottom_annotation`
 #' instead.
 #' @param anno_colors List of colors to use for annotation.
-#' @param anno_rows_title_side Side (top or bottom) of row annotation names
+#' @param annorow_title_side Side (top or bottom) of row annotation names
 #' @param name The name of the heatmap, eventually appearing as title of the
 #' color scale.
 #' @param show_rownames Whether to show row names (default TRUE if 50 rows or
@@ -50,9 +50,10 @@
 #' @param includeMissing Logical; whether to include missing genes (default
 #' FALSE)
 #' @param mark An optional vector of gene names to highlight.
-#' @param right_annotation Passed to `ComplexHeatmap::Heatmap`
 #' @param isMult Logical; used to silence labels when plotting mulitple heatmaps
 #' @param show_heatmap_legend Logical; whether to show heatmap legend
+#' @param sort.method Row sorting method (see \code{\link{sortRows}})
+#' @param na_col Color of NA values
 #' @param ... Further arguments passed to `pheatmap` (`sehm`) or `Heatmap`
 #' (`sechm`).
 #'
@@ -164,7 +165,7 @@ sechm <- function(se, genes, do.scale=FALSE, assayName=.getDef("assayName"),
         show_annotation_name=!isMult, anno_name_side="right" )
     }
   }
-  if(!is(bottom_annotation,"HeatmapAnnotation") && !is.null(top_annotation)){
+  if(!is(bottom_annotation,"HeatmapAnnotation") && !is.null(bottom_annotation)){
     if(is.character(bottom_annotation)){
       bottom_annotation <- .prepareAnnoDF(
         colData(se), anno_colors, bottom_annotation, whichComplex="column",

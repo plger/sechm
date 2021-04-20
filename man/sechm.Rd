@@ -81,7 +81,8 @@ be set automatically according to toporder.}
 \item{left_annotation}{Columns of `rowData` to use for left annotation.
 Alternatively, an `HeatmapAnnotation` object.}
 
-\item{right_annotation}{Passed to `ComplexHeatmap::Heatmap`}
+\item{right_annotation}{Columns of `rowData` to use for left annotation.
+Alternatively, an `HeatmapAnnotation` object.}
 
 \item{top_annotation}{Columns of `colData` to use for top annotation.
 Alternatively, an `HeatmapAnnotation` object.}
@@ -110,13 +111,17 @@ less).}
 
 \item{mark}{An optional vector of gene names to highlight.}
 
+\item{na_col}{Color of NA values}
+
+\item{annorow_title_side}{Side (top or bottom) of row annotation names}
+
 \item{includeMissing}{Logical; whether to include missing genes (default
 FALSE)}
 
+\item{sort.method}{Row sorting method (see \code{\link{sortRows}})}
+
 \item{...}{Further arguments passed to `pheatmap` (`sehm`) or `Heatmap`
 (`sechm`).}
-
-\item{anno_rows_title_side}{Side (top or bottom) of row annotation names}
 }
 \value{
 A a \code{\link[ComplexHeatmap]{Heatmap-class}}.

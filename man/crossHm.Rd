@@ -19,9 +19,11 @@ crossHm(
   breaks = .getDef("breaks"),
   gaps_at = .getDef("gaps_at"),
   gaps_row = NULL,
-  anno_rows = .getDef("anno_rows"),
-  anno_columns = .getDef("anno_columns"),
   name = NULL,
+  top_annotation = .getDef("anno_columns"),
+  anno_columns = NULL,
+  left_annotation = .getDef("anno_rows"),
+  anno_rows = NULL,
   anno_colors = list(),
   show_rownames = NULL,
   merge_legends = FALSE,
@@ -72,11 +74,15 @@ produce a symmetrical scale without quantile capping.}
 
 \item{gaps_row}{A named vector according to which rows will be split.}
 
-\item{anno_rows}{Columns of `rowData` to use for annotation.}
-
-\item{anno_columns}{Columns of `colData` to use for annotation.}
-
 \item{name}{The title of the heatmap key.}
+
+\item{top_annotation}{Columns of `colData` to use for top annotation.}
+
+\item{anno_columns}{Deprecated. Use `top_annotation` instead.}
+
+\item{left_annotation}{Columns of `rowData` to use for left annotation.}
+
+\item{anno_rows}{Deprecated. Use `left_annotation` instead.}
 
 \item{anno_colors}{List of colors to use for annotation.}
 
@@ -102,8 +108,8 @@ Plot a multi-panel heatmap from a list of
 }
 \examples{
 data("SE", package="sechm")
-se1 <- SE[,1:10]
-se2 <- SE[,11:20]
+se1 <- SE[,1:6]
+se2 <- SE[,7:15]
 se3 <- crossHm(list(se1=se1, se2=se2), row.names(SE)[1:10] )
 
 }

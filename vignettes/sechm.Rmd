@@ -228,7 +228,7 @@ the `crossHm` function to handle these issues. `crossHm` works with a list of
 `SummarizedExperiment` objects:
 
 ```{r crossHm}
-# we build another SE object:
+# we build another SE object and introduce some variation in it:
 SE2 <- SE
 assays(SE2)$logcpm <- jitter(assays(SE2)$logcpm, factor=1000)
 crossHm(list(SE1=SE, SE2=SE2), g, do.scale = TRUE, 
