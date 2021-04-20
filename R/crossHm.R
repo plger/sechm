@@ -192,7 +192,8 @@ crossHm <- function(ses, genes, do.scale=TRUE, uniqueScale=FALSE,
     ht <- NULL
     for(f in htlist) ht <- ht + f
     if(length(anno_colors)>0)
-        return(draw(ht, annotation_legend_list=.annoLegend(anno_colors),
-                    merge_legends=merge_legends))
+        return(ComplexHeatmap::draw(ht, 
+                annotation_legend_list=.annoLegend(anno_colors),
+                merge_legends=merge_legends))
     ht
 }
