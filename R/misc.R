@@ -63,7 +63,7 @@ sortRows <- function(x, z=FALSE, toporder=NULL, na.rm=FALSE, method="MDS_angle",
 
 
 .chooseAssay <- function(se, assayName=NULL, returnName=FALSE){
-  a <- .getDef("assay")
+  a <- .getDef("assayName")
   if(is.null(assayName) && !is.null(assayNames(se))){
     assayName <- intersect(assayNames(se), a)
     if(length(assayName)>0){

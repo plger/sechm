@@ -213,7 +213,7 @@ Because `sechm` produces a `Heatmap` object from
 is possible to combine them:
 
 ```{r two_heatmaps}
-sechm(SE, genes=g)
+sechm(SE, genes=g) + sechm(SE, genes=g)
 ```
 
 However, doing so involves manual work to ensure that the labels and colors are 

@@ -11,14 +11,15 @@
 
   list(set=function(variable, value) {
     stopifnot(is.character(variable), length(variable) == 1L, !is.na(variable))
-    stopifnot(!(variable) %in% names(options))
+    stopifnot(variable %in% names(options))
     env[[variable]] <- value
   }, get=function(variable, default=NULL) {
     if(variable %in% names(env)) return(env[[variable]])
-    stopifnot(!(variable) %in% names(options))
-    options[[variable]]
+    if(variable %in% names(options)) return(options[[variable]])
+    warning("Unknown option ", variable)
+    return(NULL)
   }, reset=function(){
-    for(f in names(env)) env[[f]] <- NULL
+    for(f in names(options)) env[[f]] <- options[[f]]
   })
 })
 
