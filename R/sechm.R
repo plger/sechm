@@ -60,8 +60,8 @@
 #' @return A a \code{\link[ComplexHeatmap]{Heatmap-class}}.
 #'
 #' @examples
-#' data("SE", package="sechm")
-#' sehm(SE, row.names(SE)[1:10], do.scale=TRUE)
+#' data("Chen2017", package="sechm")
+#' sehm(Chen2017, row.names(Chen2017)[1:10], do.scale=TRUE)
 #'
 #' @importFrom circlize colorRamp2
 #' @importFrom methods is

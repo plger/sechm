@@ -2,7 +2,7 @@
 % Please edit documentation in R/data.R
 \name{data}
 \alias{data}
-\alias{SE}
+\alias{Chen2017}
 \title{Example dataset}
 \value{
 a \code{\link[SummarizedExperiment]{SummarizedExperiment-class}}.

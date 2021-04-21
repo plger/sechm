@@ -107,9 +107,9 @@ Plot a multi-panel heatmap from a list of
 \code{\link[SummarizedExperiment]{SummarizedExperiment-class}}.
 }
 \examples{
-data("SE", package="sechm")
-se1 <- SE[,1:6]
-se2 <- SE[,7:15]
-se3 <- crossHm(list(se1=se1, se2=se2), row.names(SE)[1:10] )
+data("Chen2017", package="sechm")
+se1 <- Chen2017[,1:6]
+se2 <- Chen2017[,7:15]
+se3 <- crossHm(list(se1=se1, se2=se2), row.names(se1)[1:10] )
 
 }

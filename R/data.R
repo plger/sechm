@@ -1,6 +1,6 @@
 #' @rdname data
 #' @name data
-#' @aliases data SE
+#' @aliases data Chen2017
 #'
 #' @title Example dataset
 #'

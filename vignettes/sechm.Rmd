@@ -37,12 +37,6 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("sechm")
 ```
 
-Or, to install the latest development version:
-
-```{r, eval=FALSE}
-BiocManager::install("plger/sechm")
-```
-
 ## Example data
 
 To showcase the main functions, we will use an example object which contains (a 
@@ -54,8 +48,8 @@ suppressPackageStartupMessages({
   library(SummarizedExperiment)
   library(sechm)
 })
-data("SE", package="sechm")
-SE
+data("Chen2017", package="sechm")
+SE <- Chen2017
 ```
 
 This is taken from 
@@ -168,7 +162,8 @@ extreme values, but enables us to visualize the others better.
 Manual breaks can also be defined. The colors themselves can be passed as 
 follows:
 
-```{r}
+```{r, eval=FALSE}
+# not run
 sechm(SE, genes=g2, hmcols=viridisLite::cividis(10))
 ```
 
