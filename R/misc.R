@@ -229,9 +229,13 @@ getBreaks <- function(x, n, split.prop=0.98, symmetric=TRUE){
 #'
 #' @export
 resetAllSechmOptions <- function(){
-  for(o in grep("^sechm_",names(options()), value=TRUE)){
-    eval(parse(text=paste0('options("',o,'"=NULL)')))
-  }
+  options("sechm_assayName"=NULL)
+  options("sechm_hmcols"=NULL)
+  options("sechm_anno_columns"=NULL)
+  options("sechm_anno_rows"=NULL)
+  options("sechm_anno_colors"=NULL)
+  options("sechm_gaps_at"=NULL)
+  options("sechm_breaks"=NULL)
 }
 
 
