@@ -71,8 +71,8 @@ crossHm <- function(ses, genes, do.scale=TRUE, uniqueScale=FALSE,
                     show_colnames=FALSE, rel.width=NULL, ... ){
 
   if(!is.null(anno_rows) || !is.null(anno_columns))
-    warning("anno_rows and anno_columns are deprecated; please use ",
-            "top_annotation and left_annotation instead.")
+    .Deprecated("anno_rows and anno_columns are deprecated; please use ",
+                "top_annotation and left_annotation instead.")
   if(is.null(left_annotation)) left_annotation <- anno_rows
   if(is.null(top_annotation)) top_annotation <- anno_columns
 
