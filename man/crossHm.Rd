@@ -34,7 +34,7 @@ crossHm(
 }
 \arguments{
 \item{ses}{A (named) list of
-\code{\link[SummarizedExperiment]{SummarizedExperiment-class}}.}
+\code{\link[SummarizedExperiment]{SummarizedExperiment-class}} objects.}
 
 \item{genes}{A vector of genes/row.names to plot.}
 

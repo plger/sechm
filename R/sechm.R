@@ -8,11 +8,11 @@
 #' @param do.scale Logical; whether to scale rows (default FALSE).
 #' @param assayName An optional vector of assayNames to use. The first available
 #'  will be used, or the first assay if NULL.
-#' @param sortRowsOn Sort rows by MDS polar order using the specified columns
-#' (default all)
 #' @param cluster_cols Whether to cluster columns (default F)
 #' @param cluster_rows Whether to cluster rows; default FALSE if
 #' `do.sortRows=TRUE`.
+#' @param sortRowsOn Sort rows by MDS polar order using the specified columns
+#' (default all)
 #' @param toporder Optional verctor of categories on which to supra-order when
 #' sorting rows, or name of a `rowData` column to use for this purpose.
 #' @param hmcols Colors for the heatmap.
@@ -43,14 +43,14 @@
 #' @param annorow_title_side Side (top or bottom) of row annotation names
 #' @param name The name of the heatmap, eventually appearing as title of the
 #' color scale.
-#' @param show_rownames Whether to show row names (default TRUE if 50 rows or
-#' less).
+#' @param show_rownames Whether to show row names (default TRUE if less than
+#' 50 rows to plot).
 #' @param show_colnames Whether to show column names (default FALSE).
 #' @param show_annotation_legend Logical; whether to show the annotation legend.
 #' @param includeMissing Logical; whether to include missing genes (default
 #' FALSE)
 #' @param mark An optional vector of gene names to highlight.
-#' @param isMult Logical; used to silence labels when plotting mulitple heatmaps
+#' @param isMult Logical; used to silence labels when plotting multiple heatmaps
 #' @param show_heatmap_legend Logical; whether to show heatmap legend
 #' @param sort.method Row sorting method (see \code{\link{sortRows}})
 #' @param na_col Color of NA values

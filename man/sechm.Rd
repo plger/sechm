@@ -98,12 +98,12 @@ instead.}
 
 \item{anno_colors}{List of colors to use for annotation.}
 
-\item{show_rownames}{Whether to show row names (default TRUE if 50 rows or
-less).}
+\item{show_rownames}{Whether to show row names (default TRUE if less than
+50 rows to plot).}
 
 \item{show_colnames}{Whether to show column names (default FALSE).}
 
-\item{isMult}{Logical; used to silence labels when plotting mulitple heatmaps}
+\item{isMult}{Logical; used to silence labels when plotting multiple heatmaps}
 
 \item{show_heatmap_legend}{Logical; whether to show heatmap legend}
 

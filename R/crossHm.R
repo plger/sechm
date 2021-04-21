@@ -4,16 +4,16 @@
 #' \code{\link[SummarizedExperiment]{SummarizedExperiment-class}}.
 #'
 #' @param ses A (named) list of
-#' \code{\link[SummarizedExperiment]{SummarizedExperiment-class}}.
+#'  \code{\link[SummarizedExperiment]{SummarizedExperiment-class}} objects.
 #' @param genes A vector of genes/row.names to plot.
+#' @param assayName The name of the assay to use; if multiple names are given,
+#' the first available will be used. Defaults to "logcpm", "lognorm".
+#' @param only.common Logical; whether to plot only rows common to all SEs
+#' (default TRUE).
 #' @param do.scale Logical; whether to scale rows in each SE (default TRUE).
 #' @param uniqueScale Logical; whether to force the same colorscale for
 #' each heatmap.
-#' @param assayName The name of the assay to use; if multiple names are given,
-#' the first available will be used. Defaults to "logcpm", "lognorm".
 #' @param sortBy Names or indexes of `ses` to use for sorting rows (default all)
-#' @param only.common Logical; whether to plot only rows common to all SEs
-#' (default TRUE).
 #' @param cluster_cols Logical; whether to cluster columns (default FALSE).
 #' @param cluster_rows Logical; whether to cluster rows (default TRUE if
 #' `do.sortRows=FALSE`, FALSE otherwise).
