@@ -149,24 +149,6 @@ getBreaks <- function(x, n, split.prop=0.98, symmetric=TRUE){
   xr
 }
 
-.getDef <- function(x, se){
-  a <- c( "Batch", "batch", "Condition","condition", "Group", "group",
-          "Dataset", "Genotype", "genotype", "cluster_id", "group_id",
-          "celltype")
-  switch(x,
-         assay=getOption("sechm_def_assayName",
-                         default=c("logFC", "log2FC", "logcpm", "lognorm")),
-         anno_colors=getOption("sechm_def_anno_colors", default=list()),
-         hmcols=getOption("sechm_def_hmcols",
-                          default=c("blue", "black", "yellow")),
-         anno_columns=getOption("sechm_def_anno_columns", default=a),
-         anno_rows=getOption("sechm_def_anno_rows", default=c()),
-         gaps_at=getOption("sechm_def_gaps_at",
-                           default=c("Dataset","cluster_id")),
-         breaks=getOption("sechm_def_breaks", default=NULL)
-        )
-}
-
 .getAnnoCols <- function(se, given=list(), do.assign=FALSE){
     ll <- list( default=.getDef("anno_colors") )
     if(!is.null(metadata(se)$anno_colors)) ll$object <- metadata(se)$anno_colors
@@ -217,27 +199,6 @@ getBreaks <- function(x, n, split.prop=0.98, symmetric=TRUE){
         return(any( unlist(lapply(assays(x), .has_nan)) ))
     any(is.infinite(x) | is.na(x))
 }
-
-#' resetAllSechmOptions
-#'
-#' Resents all global options relative to sechm
-#'
-#' @return None
-#'
-#' @examples
-#' resetAllSechmOptions()
-#'
-#' @export
-resetAllSechmOptions <- function(){
-  options("sechm_assayName"=NULL)
-  options("sechm_hmcols"=NULL)
-  options("sechm_anno_columns"=NULL)
-  options("sechm_anno_rows"=NULL)
-  options("sechm_anno_colors"=NULL)
-  options("sechm_gaps_at"=NULL)
-  options("sechm_breaks"=NULL)
-}
-
 
 #' @importFrom grid gpar
 #' @importFrom ComplexHeatmap Legend packLegend

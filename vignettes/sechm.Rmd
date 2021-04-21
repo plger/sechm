@@ -184,17 +184,16 @@ metadata(SE)$hmcols <- c("darkred","white","darkblue")
 sechm(SE, g, do.scale = TRUE)
 ```
 
-Finally, it is also possible to set colors as global options:
+Finally, it is also possible to set colors as package-wide options:
 
 ```{r colors_in_options}
-options("sechm_def_hmcols"=c("white","grey","black"))
+setSechmOption("hmcols", value=c("white","grey","black"))
 sechm(SE, g, do.scale = TRUE)
 ```
 
 At the moment, the following arguments can be set as global options:
 `assayName`, `hmcols`, `anno_columns`, `anno_rows`, `anno_colors`, `gaps_at`, 
-`breaks`. Options must be set with the prefix `sechm_def_`, followed by the 
-name of the argument.
+`breaks`.
 
 To remove the predefined colors:
 
