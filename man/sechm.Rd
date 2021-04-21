@@ -120,8 +120,7 @@ FALSE)}
 
 \item{sort.method}{Row sorting method (see \code{\link{sortRows}})}
 
-\item{...}{Further arguments passed to `pheatmap` (`sehm`) or `Heatmap`
-(`sechm`).}
+\item{...}{Further arguments passed to `Heatmap`}
 }
 \value{
 A a \code{\link[ComplexHeatmap]{Heatmap-class}}.
@@ -132,6 +131,6 @@ ComplexHeatmap wrapper for
 }
 \examples{
 data("Chen2017", package="sechm")
-sehm(Chen2017, row.names(Chen2017)[1:10], do.scale=TRUE)
+sechm(Chen2017, row.names(Chen2017)[1:10], do.scale=TRUE)
 
 }

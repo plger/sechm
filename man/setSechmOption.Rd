@@ -6,11 +6,16 @@
 \usage{
 setSechmOption(variable, value)
 }
+\arguments{
+\item{variable}{The name of the variable to set}
+
+\item{value}{The parameter value to save}
+}
 \value{
 None
 }
 \description{
-Resents all global options relative to sechm
+Sets a package-wide option for `sechm`
 }
 \examples{
 setSechmOption("hmcols", value=c("blue","black","yellow"))

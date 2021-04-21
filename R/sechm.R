@@ -54,14 +54,13 @@
 #' @param show_heatmap_legend Logical; whether to show heatmap legend
 #' @param sort.method Row sorting method (see \code{\link{sortRows}})
 #' @param na_col Color of NA values
-#' @param ... Further arguments passed to `pheatmap` (`sehm`) or `Heatmap`
-#' (`sechm`).
+#' @param ... Further arguments passed to `Heatmap`
 #'
 #' @return A a \code{\link[ComplexHeatmap]{Heatmap-class}}.
 #'
 #' @examples
 #' data("Chen2017", package="sechm")
-#' sehm(Chen2017, row.names(Chen2017)[1:10], do.scale=TRUE)
+#' sechm(Chen2017, row.names(Chen2017)[1:10], do.scale=TRUE)
 #'
 #' @importFrom circlize colorRamp2
 #' @importFrom methods is

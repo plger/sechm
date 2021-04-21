@@ -39,7 +39,10 @@ resetAllSechmOptions <- function() .options$reset()
 
 #' setSechmOption
 #'
-#' Resents all global options relative to sechm
+#' Sets a package-wide option for `sechm`
+#'
+#' @param variable The name of the variable to set
+#' @param value The parameter value to save
 #'
 #' @return None
 #'
@@ -47,4 +50,6 @@ resetAllSechmOptions <- function() .options$reset()
 #' setSechmOption("hmcols", value=c("blue","black","yellow"))
 #'
 #' @export
-setSechmOption <- function(variable, value) .options$set(variable,value)
+setSechmOption <- function(variable, value){
+  .options$set(variable,value)
+}
