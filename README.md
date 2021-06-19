@@ -26,4 +26,4 @@ sechm(SE, genes=myGenes, top_annotation="Time", do.scale=TRUE, gaps_at="Conditio
 
 ![](inst/docs/example.png)<!-- -->
 
-See the package's vignette for more information!
+See the package's [vignette](http://www.bioconductor.org/packages/release/bioc/vignettes/sechm/inst/doc/sechm.html) for more information!
