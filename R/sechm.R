@@ -83,8 +83,8 @@ sechm <- function(se, genes, do.scale=FALSE, assayName=.getDef("assayName"),
                   includeMissing=FALSE, sort.method="MDS_angle", ...){
 
   if(!is.null(anno_rows) || !is.null(anno_columns))
-    .Deprecated("anno_rows and anno_columns are deprecated; please use ",
-                "top_annotation and left_annotation instead.")
+    message("anno_rows and anno_columns are deprecated; please use ",
+            "top_annotation and left_annotation instead.")
 
   assayName <- .chooseAssay(se, assayName, returnName = TRUE)
   if(is.null(name)){

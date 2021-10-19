@@ -4,7 +4,8 @@
 #' \code{\link[SummarizedExperiment]{SummarizedExperiment-class}}.
 #'
 #' @param ses A (named) list of
-#'  \code{\link[SummarizedExperiment]{SummarizedExperiment-class}} objects.
+#'  \code{\link[SummarizedExperiment]{SummarizedExperiment-class}} objects,
+#'  with some matching row.names between them.
 #' @param genes A vector of genes/row.names to plot.
 #' @param assayName The name of the assay to use; if multiple names are given,
 #' the first available will be used. Defaults to "logcpm", "lognorm".
