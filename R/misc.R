@@ -65,6 +65,11 @@ sortRows <- function(x, z=FALSE, toporder=NULL, na.rm=FALSE, method="MDS_angle",
 .chooseAssay <- function(se, assayName=NULL, returnName=FALSE){
   if(length(assays(se))==0) stop("The object has no assay!")
   assayGiven <- !is.null(assayName)
+  if(!is.null(dan <- metadata(se)$default_view$assay) && 
+     length(dan <- intersect(dan,assayNames(se)))>0){
+    assayGiven <- length(dan)==1
+    assayName <- head(dan,1)
+  }
   a <- .getDef("assayName")
   if(!assayGiven && !is.null(assayNames(se))){
     assayName <- intersect(a,assayNames(se))
@@ -93,9 +98,9 @@ sortRows <- function(x, z=FALSE, toporder=NULL, na.rm=FALSE, method="MDS_angle",
 }
 
 .getBaseHMcols <- function(se, cols){
-    if(!is.null(cols)) return(cols)
-    if(!is.null(se) && !is.null(cols <- metadata(se)$hmcols)) return(cols)
-    .getDef("hmcols")
+  if(!is.null(cols)) return(cols)
+  if(!is.null(se) && !is.null(cols <- metadata(se)$hmcols)) return(cols)
+  .getDef("hmcols")
 }
 
 #' getBreaks
@@ -148,7 +153,8 @@ getBreaks <- function(x, n, split.prop=0.98, symmetric=TRUE){
 
 .getAnnoCols <- function(se, given=list(), do.assign=FALSE){
     ll <- list( default=.getDef("anno_colors") )
-    if(!is.null(metadata(se)$anno_colors)) ll$object <- metadata(se)$anno_colors
+    if(!is.null(metadata(se)$anno_colors))
+      ll$object <- metadata(se)$anno_colors
     ll$given <- given
     ac <- .mergelists(ll)
     if(do.assign) ac <- .assignAnnoColors(se, ac)
@@ -262,16 +268,6 @@ getBreaks <- function(x, n, split.prop=0.98, symmetric=TRUE){
     list(breaks=breaks, hmcols=hmcols)
 }
 
-.rbind_all <- function(dfs){
-    aac <- unique(unlist(lapply(dfs,colnames)))
-    dfs <- lapply(dfs, FUN=function(x){
-        x <- as.data.frame(x)
-        for(f in setdiff(aac, colnames(x))) x[[f]] <- NA
-        x[,aac,drop=FALSE]
-    })
-    do.call(rbind, dfs)
-}
-
 #' qualitativeColors
 #'
 #' @param names The names to which the colors are to be assigned, or an integer
@@ -381,4 +377,16 @@ scale2 <- function(x){
                             highlight=highlight)
   }
   an
+}
+
+
+.defaultAnno <- function(se, type="left"){
+  if(type=="top" && !is.null(dv <- metadata(se)$default_view) &&
+     sum(lengths(dv <- unique(c(dv$gridvar, dv$groupvar, dv$colvar))))>0)
+    return(dv)
+  if(!is.null(def <- .getDef(paste0(type,"_annotation")))) return(def)
+  # for compatibility with older versions:
+  if(type=="left") return(.getDef("anno_rows"))
+  if(type=="top") return(.getDef("anno_columns"))
+  return(NULL)
 }

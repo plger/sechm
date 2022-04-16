@@ -1,11 +1,11 @@
 .options <- local({
   options <- list("assayName"=c("logFC", "log2FC", "logcpm", "lognorm"),
                   "anno_colors"=list(), hmcols=c("blue","black","yellow"),
-                  "anno_columns"=c(
+                  "top_annotation"=c(
                     "Batch", "batch", "Condition","condition", "Group", "group",
                     "Dataset", "Genotype", "genotype", "cluster_id", "group_id",
                     "celltype"),
-                  "anno_rows"=c(), gaps_at=c("Dataset","cluster_id"),
+                  "left_annotation"=c(), gaps_at=c("Dataset","cluster_id"),
                   breaks=NULL)
   env <- new.env(parent=emptyenv())
 

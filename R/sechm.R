@@ -69,8 +69,8 @@ sechm <- function(se, features, do.scale=FALSE, assayName=.getDef("assayName"),
                   name=NULL, sortRowsOn=seq_len(ncol(se)), cluster_cols=FALSE,
                   cluster_rows=is.null(sortRowsOn), toporder=NULL, hmcols=NULL,
                   breaks=.getDef("breaks"), gaps_at=.getDef("gaps_at"),
-                  gaps_row=NULL, left_annotation=.getDef("anno_rows"),
-                  right_annotation=NULL, top_annotation=.getDef("anno_columns"),
+                  gaps_row=NULL, left_annotation=NULL,
+                  right_annotation=NULL, top_annotation=NULL,
                   bottom_annotation=NULL, anno_colors=list(), 
                   show_rownames=NULL, show_colnames=FALSE,
                   isMult=FALSE, show_heatmap_legend=!isMult,
@@ -121,6 +121,12 @@ sechm <- function(se, features, do.scale=FALSE, assayName=.getDef("assayName"),
     mark <- NULL
   }
 
+  if(is.null(left_annotation)) left_annotation <- .defaultAnno(se, "left")
+  if(is.null(right_annotation) && is.null(mark))
+    right_annotation <- .defaultAnno(se, "right")
+  if(is.null(top_annotation)) top_annotation <- .defaultAnno(se, "top")
+  if(is.null(bottom_annotation)) bottom_annotation <- .defaultAnno(se, "bottom")
+  
   if(!is(left_annotation,"HeatmapAnnotation")){
     if(is.character(left_annotation)){
       left_annotation <- .prepareAnnoDF(
@@ -140,6 +146,7 @@ sechm <- function(se, features, do.scale=FALSE, assayName=.getDef("assayName"),
         show_annotation_name=!is.na(annorow_title_side), highlight=mark)
     }
   }
+  
   if(is.null(right_annotation) && !is.null(mark)){
     right_annotation <- rowAnnotation(highlight=mark)
   }
