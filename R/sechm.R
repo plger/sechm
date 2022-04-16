@@ -66,7 +66,7 @@
 #' @export
 #' @name sechm
 #' @rdname sechm
-sechm <- function(se, features, do.scale=FALSE, assayName=.getDef("assayName"),
+sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
                   name=NULL, sortRowsOn=seq_len(ncol(se)), cluster_cols=FALSE,
                   cluster_rows=is.null(sortRowsOn), toporder=NULL, hmcols=NULL,
                   breaks=.getDef("breaks"), gaps_at=.getDef("gaps_at"),
