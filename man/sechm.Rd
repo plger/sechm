@@ -6,7 +6,7 @@
 \usage{
 sechm(
   se,
-  genes,
+  features,
   do.scale = FALSE,
   assayName = .getDef("assayName"),
   name = NULL,
@@ -18,12 +18,10 @@ sechm(
   breaks = .getDef("breaks"),
   gaps_at = .getDef("gaps_at"),
   gaps_row = NULL,
-  left_annotation = .getDef("anno_rows"),
+  left_annotation = NULL,
   right_annotation = NULL,
-  top_annotation = .getDef("anno_columns"),
+  top_annotation = NULL,
   bottom_annotation = NULL,
-  anno_rows = NULL,
-  anno_columns = NULL,
   anno_colors = list(),
   show_rownames = NULL,
   show_colnames = FALSE,
@@ -41,7 +39,7 @@ sechm(
 \arguments{
 \item{se}{A \code{\link[SummarizedExperiment]{SummarizedExperiment-class}}.}
 
-\item{genes}{An optional vector of genes (i.e. row names of `se`)}
+\item{features}{An optional vector of features (i.e. row names of `se`)}
 
 \item{do.scale}{Logical; whether to scale rows (default FALSE).}
 
@@ -85,16 +83,11 @@ Alternatively, an `HeatmapAnnotation` object.}
 Alternatively, an `HeatmapAnnotation` object.}
 
 \item{top_annotation}{Columns of `colData` to use for top annotation.
-Alternatively, an `HeatmapAnnotation` object.}
+Alternatively, an `HeatmapAnnotation` object. To disable (overriding 
+  defaults), use `top_annotation=character()`.}
 
 \item{bottom_annotation}{Columns of `colData` to use for bottom annotation.
 Alternatively, an `HeatmapAnnotation` object.}
-
-\item{anno_rows}{Deprecated. Use `left_annotation` or `right_annotation`
-instead.}
-
-\item{anno_columns}{Deprecated. Use `top_annotation` or `bottom_annotation`
-instead.}
 
 \item{anno_colors}{List of colors to use for annotation.}
 
@@ -115,7 +108,7 @@ instead.}
 
 \item{annorow_title_side}{Side (top or bottom) of row annotation names}
 
-\item{includeMissing}{Logical; whether to include missing genes (default
+\item{includeMissing}{Logical; whether to include missing features (default
 FALSE)}
 
 \item{sort.method}{Row sorting method (see \code{\link{sortRows}})}

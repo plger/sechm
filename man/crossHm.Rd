@@ -6,7 +6,7 @@
 \usage{
 crossHm(
   ses,
-  genes,
+  features,
   do.scale = TRUE,
   uniqueScale = FALSE,
   assayName = .getDef("assayName"),
@@ -21,9 +21,7 @@ crossHm(
   gaps_row = NULL,
   name = NULL,
   top_annotation = .getDef("anno_columns"),
-  anno_columns = NULL,
   left_annotation = .getDef("anno_rows"),
-  anno_rows = NULL,
   anno_colors = list(),
   show_rownames = NULL,
   merge_legends = FALSE,
@@ -34,9 +32,10 @@ crossHm(
 }
 \arguments{
 \item{ses}{A (named) list of
-\code{\link[SummarizedExperiment]{SummarizedExperiment-class}} objects.}
+\code{\link[SummarizedExperiment]{SummarizedExperiment-class}} objects,
+with some matching row.names between them.}
 
-\item{genes}{A vector of genes/row.names to plot.}
+\item{features}{A vector of features (i.e. row.names) to plot.}
 
 \item{do.scale}{Logical; whether to scale rows in each SE (default TRUE).}
 
@@ -78,11 +77,7 @@ produce a symmetrical scale without quantile capping.}
 
 \item{top_annotation}{Columns of `colData` to use for top annotation.}
 
-\item{anno_columns}{Deprecated. Use `top_annotation` instead.}
-
 \item{left_annotation}{Columns of `rowData` to use for left annotation.}
-
-\item{anno_rows}{Deprecated. Use `left_annotation` instead.}
 
 \item{anno_colors}{List of colors to use for annotation.}
 

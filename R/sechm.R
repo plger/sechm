@@ -32,7 +32,8 @@
 #' @param right_annotation Columns of `rowData` to use for left annotation.
 #' Alternatively, an `HeatmapAnnotation` object.
 #' @param top_annotation Columns of `colData` to use for top annotation.
-#' Alternatively, an `HeatmapAnnotation` object.
+#' Alternatively, an `HeatmapAnnotation` object. To disable (overriding 
+#'   defaults), use `top_annotation=character()`.
 #' @param bottom_annotation Columns of `colData` to use for bottom annotation.
 #' Alternatively, an `HeatmapAnnotation` object.
 #' @param anno_colors List of colors to use for annotation.

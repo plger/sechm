@@ -6,7 +6,6 @@ author:
   - D-HEST Institute for Neurosciences, ETH Zürich
   - Laboratory of Statistical Bioinformatics, University Zürich
 package: sechm
-output:
   BiocStyle::html_document:
         fig_height: 3.5
 abstract: |
@@ -66,9 +65,9 @@ The `sechm` function simplifies the generation of heatmaps from
 
 ```{r}
 g <- c("Egr1", "Nr4a1", "Fos", "Egr2", "Sgk1", "Arc", "Dusp1", "Fosb", "Sik1")
-sechm(SE, genes=g)
+sechm(SE, features=g)
 # with row scaling:
-sechm(SE, genes=g, do.scale=TRUE)
+sechm(SE, features=g, do.scale=TRUE)
 ```
 
 The assay can be selected, and any `rowData` or `colData` columns can be 
@@ -76,13 +75,13 @@ specified as annotation:
 
 ```{r}
 rowData(SE)$meanLogCPM <- rowMeans(assays(SE)$logcpm)
-sechm(SE, genes=g, assayName="logFC", top_annotation=c("Condition","Time"), left_annotation=c("meanLogCPM"))
+sechm(SE, features=g, assayName="logFC", top_annotation=c("Condition","Time"), left_annotation=c("meanLogCPM"))
 ```
 
 Column names are ommitted by default, but can be displayed:
 
 ```{r}
-sechm(SE, genes=g, do.scale=TRUE, show_colnames=TRUE)
+sechm(SE, features=g, do.scale=TRUE, show_colnames=TRUE)
 ```
 
 
@@ -91,19 +90,19 @@ Since `sechm` uses the
 engine for plotting, any argument of `ComplexHeatmap::Heatmap` can be passed:
 
 ```{r}
-sechm(SE, genes=g, do.scale=TRUE, row_title="My genes")
+sechm(SE, features=g, do.scale=TRUE, row_title="My genes")
 ```
 When plotting a lot of rows, by default row names are not shown (can be 
 overriden), but specific genes can be highlighted with the `mark` argument:
 
 ```{r}
-sechm(SE, genes=row.names(SE), mark=g, do.scale=TRUE, top_annotation=c("Condition","Time"))
+sechm(SE, features=row.names(SE), mark=g, do.scale=TRUE, top_annotation=c("Condition","Time"))
 ```
 
 We can also add gaps using the same columns:
 
 ```{r}
-sechm(SE, genes=g, do.scale=TRUE, top_annotation="Time", gaps_at="Condition")
+sechm(SE, features=g, do.scale=TRUE, top_annotation="Time", gaps_at="Condition")
 ```
 
 
@@ -114,19 +113,20 @@ the `sort.method` argument); this can be disabled with:
 
 ```{r}
 # reverts to clustering:
-sechm(SE, genes=row.names(SE), do.scale=TRUE, sortRowsOn=NULL)
+sechm(SE, features=row.names(SE), do.scale=TRUE, sortRowsOn=NULL)
 # no reordering:
-sechm(SE, genes=row.names(SE), do.scale=TRUE, sortRowsOn=NULL, 
+sechm(SE, features=row.names(SE), do.scale=TRUE, sortRowsOn=NULL, 
       cluster_rows=FALSE)
 ```
+
 It is also possible to combine sorting with clusters using the `toporder` argument, or using gaps:. 
 
 ```{r}
 # we first cluster rows, and save the clusters in the rowData:
 rowData(SE)$cluster <- as.character(kmeans(t(scale(t(assay(SE)))),5)$cluster)
-sechm(SE, genes=head(row.names(SE),30), do.scale=TRUE, toporder="cluster", 
+sechm(SE, features=1:30, do.scale=TRUE, toporder="cluster", 
       left_annotation="cluster", show_rownames=FALSE)
-sechm(SE, genes=head(row.names(SE),30), do.scale=TRUE, gaps_row="cluster",
+sechm(SE, features=1:30, do.scale=TRUE, gaps_row="cluster",
       show_rownames=FALSE)
 ```
 
@@ -143,10 +143,10 @@ three following examples:
 library(ComplexHeatmap)
 g2 <- c(g,"Gm14288",tail(row.names(SE)))
 draw(
-    sechm(SE, genes=g2, assayName="logFC", breaks=1, column_title="breaks=1") + 
-    sechm(SE, genes=g2, assayName="logFC", breaks=0.995, 
+    sechm(SE, features=g2, assayName="logFC", breaks=1, column_title="breaks=1") + 
+    sechm(SE, features=g2, assayName="logFC", breaks=0.995, 
           column_title="breaks=0.995", name="logFC(2)") + 
-    sechm(SE, genes=g2, assayName="logFC", breaks=0.985, 
+    sechm(SE, features=g2, assayName="logFC", breaks=0.985, 
           column_title="breaks=0.985", name="logFC(3)"),
     merge_legends=TRUE)
 ```
@@ -164,7 +164,7 @@ follows:
 
 ```{r, eval=FALSE}
 # not run
-sechm(SE, genes=g2, hmcols=viridisLite::cividis(10))
+sechm(SE, features=g2, hmcols=viridisLite::cividis(10))
 ```
 
 ## Annotation colors
@@ -175,13 +175,23 @@ simplest is to store them in the object's metadata:
 ```{r}
 metadata(SE)$anno_colors
 metadata(SE)$anno_colors$Condition <- c(Control="white", Forskolin="black")
-sechm(SE, genes=g2, top_annotation="Condition")
+sechm(SE, features=g2, top_annotation="Condition")
 ```
 
 Heatmap colors can be passed on in the same way:
 ```{r colors_in_object}
 metadata(SE)$hmcols <- c("darkred","white","darkblue")
 sechm(SE, g, do.scale = TRUE)
+```
+
+The default assay to be displayed and the default annotation fields to show can
+be specified in the `default_view` metadata element, as follows:
+
+```{r anno_in_object}
+metadata(SE)$default_view <- list(
+  assay="logFC",
+  top_annotation="Condition"
+)
 ```
 
 Finally, it is also possible to set colors as package-wide options:
@@ -192,8 +202,8 @@ sechm(SE, g, do.scale = TRUE)
 ```
 
 At the moment, the following arguments can be set as global options:
-`assayName`, `hmcols`, `anno_columns`, `anno_rows`, `anno_colors`, `gaps_at`, 
-`breaks`.
+`assayName`, `hmcols`, `left_annotation`, `right_annotation`, `top_annotation`,
+`bottom_annotation`, `anno_colors`, `gaps_at`, `breaks`.
 
 To remove the predefined colors:
 
@@ -213,7 +223,7 @@ Because `sechm` produces a `Heatmap` object from
 is possible to combine them:
 
 ```{r two_heatmaps}
-sechm(SE, genes=g) + sechm(SE, genes=g)
+sechm(SE, features=g) + sechm(SE, features=g)
 ```
 
 However, doing so involves manual work to ensure that the labels and colors are 
