@@ -128,23 +128,28 @@ sechm <- function(se, features, do.scale=FALSE, assayName=.getDef("assayName"),
   if(is.null(top_annotation)) top_annotation <- .defaultAnno(se, "top")
   if(is.null(bottom_annotation)) bottom_annotation <- .defaultAnno(se, "bottom")
   
-  if(!is(left_annotation,"HeatmapAnnotation") && length(left_annotation)>0){
-    if(is.character(left_annotation)){
+  if(!is(left_annotation,"HeatmapAnnotation")){
+    if(length(left_annotation)>0 && is.character(left_annotation)){
       left_annotation <- .prepareAnnoDF(
         rowData(se)[row.names(x),,drop=FALSE], anno_colors,
         left_annotation, whichComplex="row", show_legend=show_annotation_legend,
         show_annotation_name=!is.na(annorow_title_side),
         anno_name_side=ifelse(is.na(annorow_title_side), "top",
                               annorow_title_side))
+    }else{
+      left_annotation <- NULL
     }
   }
-  if(!is(right_annotation,"HeatmapAnnotation") && length(right_annotation)>0){
-    if(is.character(right_annotation)){
+  
+  if(!is(right_annotation,"HeatmapAnnotation")){
+    if(length(right_annotation)>0 && is.character(right_annotation)){
       right_annotation <- .prepareAnnoDF(
         rowData(se)[row.names(x),,drop=FALSE], anno_colors,
         right_annotation, whichComplex="row",
         show_legend=show_annotation_legend,
         show_annotation_name=!is.na(annorow_title_side), highlight=mark)
+    }else{
+      right_annotation <- NULL
     }
   }
   
@@ -152,20 +157,24 @@ sechm <- function(se, features, do.scale=FALSE, assayName=.getDef("assayName"),
     right_annotation <- rowAnnotation(highlight=mark)
   }
 
-  if(!is(top_annotation,"HeatmapAnnotation") && length(top_annotation)>0){
-    if(is.character(top_annotation)){
+  if(!is(top_annotation,"HeatmapAnnotation")){
+    if(length(top_annotation)>0 && is.character(top_annotation)){
       top_annotation <- .prepareAnnoDF(
         colData(se), anno_colors, top_annotation, whichComplex="column",
         show_legend=(show_annotation_legend && !isMult),
         show_annotation_name=!isMult, anno_name_side="right" )
+    }else{
+      top_annotation <- NULL
     }
   }
-  if(!is(bottom_annotation,"HeatmapAnnotation") && length(bottom_annotation)>0){
-    if(is.character(bottom_annotation)){
+  if(!is(bottom_annotation,"HeatmapAnnotation")){
+    if(length(bottom_annotation)>0 && is.character(bottom_annotation)){
       bottom_annotation <- .prepareAnnoDF(
         colData(se), anno_colors, bottom_annotation, whichComplex="column",
         show_legend=(show_annotation_legend && !isMult),
         show_annotation_name=!isMult, anno_name_side="right" )
+    }else{
+      bottom_annotation <- NULL
     }
   }
 

@@ -6,6 +6,7 @@ author:
   - D-HEST Institute for Neurosciences, ETH Zürich
   - Laboratory of Statistical Bioinformatics, University Zürich
 package: sechm
+output:
   BiocStyle::html_document:
         fig_height: 3.5
 abstract: |
