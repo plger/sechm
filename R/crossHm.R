@@ -6,7 +6,7 @@
 #' @param ses A (named) list of
 #'  \code{\link[SummarizedExperiment]{SummarizedExperiment-class}} objects,
 #'  with some matching row.names between them.
-#' @param genes A vector of genes/row.names to plot.
+#' @param features A vector of features (i.e. row.names) to plot.
 #' @param assayName The name of the assay to use; if multiple names are given,
 #' the first available will be used. Defaults to "logcpm", "lognorm".
 #' @param only.common Logical; whether to plot only rows common to all SEs
@@ -32,9 +32,7 @@
 #' @param gaps_at Columns of `colData` to use to establish gaps between columns.
 #' @param gaps_row A named vector according to which rows will be split.
 #' @param left_annotation Columns of `rowData` to use for left annotation.
-#' @param anno_rows Deprecated. Use `left_annotation` instead.
 #' @param top_annotation Columns of `colData` to use for top annotation.
-#' @param anno_columns Deprecated. Use `top_annotation` instead.
 #' @param name The title of the heatmap key.
 #' @param anno_colors List of colors to use for annotation.
 #' @param show_rownames Whether to show row names (default TRUE if 50 rows or
@@ -60,23 +58,21 @@
 #' @import SummarizedExperiment
 #' @import ComplexHeatmap
 #' @export
-crossHm <- function(ses, genes, do.scale=TRUE, uniqueScale=FALSE,
+crossHm <- function(ses, features, do.scale=TRUE, uniqueScale=FALSE,
                     assayName=.getDef("assayName"), sortBy=seq_along(ses),
                     only.common=TRUE, cluster_cols=FALSE,
                     cluster_rows=is.null(sortBy), toporder=NULL, hmcols=NULL,
                     breaks=.getDef("breaks"), gaps_at=.getDef("gaps_at"),
                     gaps_row=NULL,  name=NULL,
-                    top_annotation=.getDef("anno_columns"), anno_columns=NULL,
-                    left_annotation=.getDef("anno_rows"), anno_rows=NULL,
+                    top_annotation=.getDef("anno_columns"), 
+                    left_annotation=.getDef("anno_rows"), 
                     anno_colors=list(), show_rownames=NULL, merge_legends=FALSE,
                     show_colnames=FALSE, rel.width=NULL, ... ){
 
-  if(!is.null(anno_rows) || !is.null(anno_columns))
-    .Deprecated("anno_rows and anno_columns are deprecated; please use ",
-                "top_annotation and left_annotation instead.")
-  if(is.null(left_annotation)) left_annotation <- anno_rows
-  if(is.null(top_annotation)) top_annotation <- anno_columns
-
+  stopifnot(is.vector(features))
+  if(is.factor(features)) features <- as.character(features)
+  stopifnot(is.character(features))
+  
   if(is(ses,"SummarizedExperiment")) ses <- list(ses)
   if(is.null(names(ses))) names(ses) <- paste("SE", seq_along(ses))
   if(!is.null(rel.width) && length(rel.width)!=length(ses))
@@ -85,26 +81,26 @@ crossHm <- function(ses, genes, do.scale=TRUE, uniqueScale=FALSE,
 
   tt <- table(unlist(lapply(ses,row.names)))
   if(only.common){
-      genes <- intersect(genes, names(tt)[which(tt==length(ses))])
+      features <- intersect(features, names(tt)[which(tt==length(ses))])
   }else{
-      genes <- intersect(genes, names(tt))
+    features <- intersect(features, names(tt))
   }
-  if(length(genes)==0)
+  if(length(features)==0)
       stop("There appears to be not feature in common across `ses`")
-  if(length(genes)<=2){
+  if(length(features)<=2){
     sortBy <- NULL
     cluster_rows <- FALSE
   }
   if(!is.null(toporder)){
       if(is.null(names(toporder)))
           stop("`toporder` should be a vector named by feature")
-      if(!all(genes %in% names(toporder)))
+      if(!all(features %in% names(toporder)))
           warning("Some features are missing from `toporder`")
-      toporder <- toporder[genes]
-      names(toporder) <- genes
+      toporder <- toporder[features]
+      names(toporder) <- features
   }
 
-  dats <- lapply( ses, FUN=.prepData, genes=genes, assayName=assayName,
+  dats <- lapply( ses, FUN=.prepData, genes=features, assayName=assayName,
                   do.scale=do.scale && !uniqueScale, includeMissing=TRUE )
   if(do.scale && uniqueScale){
       x <- do.call(cbind, dats)
@@ -131,8 +127,8 @@ crossHm <- function(ses, genes, do.scale=TRUE, uniqueScale=FALSE,
       if(do.scale && !uniqueScale)
           xs <- lapply(xs, FUN=function(x){ t(.safescale(t(x))) })
       xs <- do.call(cbind, xs[sortBy])
-      genes <- row.names(sortRows(xs,toporder=toporder))
-      dats <- lapply(dats, FUN=function(x) x[genes,,drop=FALSE])
+      features <- row.names(sortRows(xs,toporder=toporder))
+      dats <- lapply(dats, FUN=function(x) x[features,,drop=FALSE])
   }
 
   CDs <- lapply(ses, ac=top_annotation, FUN=function(x,ac){
@@ -158,10 +154,10 @@ crossHm <- function(ses, genes, do.scale=TRUE, uniqueScale=FALSE,
   }
 
   ses <- lapply(seq_along(ses), FUN=function(i){
-      RD <- rowData(ses[[i]])[genes,,drop=FALSE]
+      RD <- rowData(ses[[i]])[features,,drop=FALSE]
       se <- SummarizedExperiment( list(a=dats[[i]]), colData=CDs[[i]],
                                   rowData=RD, metadata=metadata(ses[[i]]) )
-      row.names(se) <- genes
+      row.names(se) <- features
       se
   })
   names(ses) <- names(dats)
@@ -171,7 +167,7 @@ crossHm <- function(ses, genes, do.scale=TRUE, uniqueScale=FALSE,
   anno_colors <- .getAnnoCols(ses[[1]], anno_colors, do.assign=TRUE)
   anno_colors <- anno_colors[afields]
 
-  if(is.null(show_rownames)) show_rownames <- length(genes)<50
+  if(is.null(show_rownames)) show_rownames <- length(features)<50
 
   hlp <- list()
   if(uniqueScale){
@@ -185,7 +181,7 @@ crossHm <- function(ses, genes, do.scale=TRUE, uniqueScale=FALSE,
   }
 
   htlist <- lapply(seq_along(ses), FUN=function(i){
-      sechm(ses[[i]], genes=genes, do.scale=(do.scale && !uniqueScale),
+      sechm(ses[[i]], features=features, do.scale=(do.scale && !uniqueScale),
             assayName="a", name=names(ses)[i], toporder=toporder,
             hmcols=hmcols, breaks=breaks, left_annotation=left_annotation,
             top_annotation=top_annotation, anno_colors=anno_colors,
