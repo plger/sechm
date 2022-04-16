@@ -311,7 +311,7 @@ safescale <- function(x, center=TRUE, byRow=FALSE){
   rv[w] <-  matrixStats::rowMaxs(y[w,], na.rm=TRUE)
   y <- y/rv
   y[which(rowSums(is.na(y) | is.infinite(y))==ncol(y)),] <- 0
-  if(byRow) y <- t(y)
+  if(!byRow) y <- t(y)
   y
 }
 
