@@ -4,7 +4,7 @@
 #' \code{\link[SummarizedExperiment]{SummarizedExperiment-class}}.
 #'
 #' @param se A \code{\link[SummarizedExperiment]{SummarizedExperiment-class}}.
-#' @param genes An optional vector of genes (i.e. row names of `se`)
+#' @param features An optional vector of features (i.e. row names of `se`)
 #' @param do.scale Logical; whether to scale rows (default FALSE).
 #' @param assayName An optional vector of assayNames to use. The first available
 #'  will be used, or the first assay if NULL.
@@ -43,7 +43,7 @@
 #' 50 rows to plot).
 #' @param show_colnames Whether to show column names (default FALSE).
 #' @param show_annotation_legend Logical; whether to show the annotation legend.
-#' @param includeMissing Logical; whether to include missing genes (default
+#' @param includeMissing Logical; whether to include missing features (default
 #' FALSE)
 #' @param mark An optional vector of gene names to highlight.
 #' @param isMult Logical; used to silence labels when plotting multiple heatmaps
@@ -65,7 +65,7 @@
 #' @export
 #' @name sechm
 #' @rdname sechm
-sechm <- function(se, genes, do.scale=FALSE, assayName=.getDef("assayName"),
+sechm <- function(se, features, do.scale=FALSE, assayName=.getDef("assayName"),
                   name=NULL, sortRowsOn=seq_len(ncol(se)), cluster_cols=FALSE,
                   cluster_rows=is.null(sortRowsOn), toporder=NULL, hmcols=NULL,
                   breaks=.getDef("breaks"), gaps_at=.getDef("gaps_at"),
@@ -78,8 +78,11 @@ sechm <- function(se, genes, do.scale=FALSE, assayName=.getDef("assayName"),
                   annorow_title_side=ifelse(show_colnames,"bottom","top"),
                   includeMissing=FALSE, sort.method="MDS_angle", ...){
 
-  if(is.numeric(genes) && genes==round(genes) && all(genes>=1))
-    genes <- row.names(se)[genes]
+  stopifnot(is.vector(features))
+  if(is.numeric(features) && all(features==round(features)) && all(features>=1))
+      features <- row.names(se)[features]
+  if(is.factor(features)) features <- as.character(features)
+  stopifnot(is.character(features))
   
   assayName <- .chooseAssay(se, assayName, returnName = TRUE)
   if(is.null(name)){
@@ -90,7 +93,7 @@ sechm <- function(se, genes, do.scale=FALSE, assayName=.getDef("assayName"),
       }
   }
 
-  x <- .prepData(se, genes=genes, do.scale=do.scale, assayName=assayName,
+  x <- .prepData(se, genes=features, do.scale=do.scale, assayName=assayName,
                  includeMissing=includeMissing )
 
   toporder <- .parseToporder(rowData(se)[row.names(x),,drop=FALSE], toporder)
