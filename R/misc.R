@@ -68,12 +68,12 @@ sortRows <- function(x, z=FALSE, toporder=NULL, na.rm=FALSE, method="MDS_angle",
   if(!is.null(dan <- metadata(se)$default_view$assay) && 
      length(dan <- intersect(dan,assayNames(se)))>0){
     assayGiven <- length(dan)==1
-    assayName <- head(dan,1)
+    assayName <- dan[1]
   }
   a <- .getDef("assayName")
   if(!assayGiven && !is.null(assayNames(se))){
     assayName <- intersect(a,assayNames(se))
-    if(is.null(assayName)) assayName <- head(assayNames(se),1)
+    if(is.null(assayName)) assayName <- assayNames(se)[1]
     if(length(assayName)>1) assayName <- assayName[1]
     if(!assayGiven) message("Using assay ", assayName)
   }else if(!assayGiven && is.null(assayNames(se))){

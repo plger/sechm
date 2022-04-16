@@ -2,6 +2,7 @@
 
 export(crossHm)
 export(getBreaks)
+export(meltSE)
 export(resetAllSechmOptions)
 export(scale2)
 export(sechm)
