@@ -33,7 +33,7 @@ sortRows <- function(x, z=FALSE, toporder=NULL, na.rm=FALSE, method="MDS_angle",
   }
   if(is.factor(toporder)) toporder <- droplevels(toporder)
   y <- x
-  if(z) y <- t(.safescale(t(x)))
+  if(z) y <- safescale(x, byRow=TRUE)
   if(!is.null(toporder)){
     if(toporder.meth=="before"){
       ag <- aggregate(y, by=list(toporder), na.rm=TRUE, FUN=median)
@@ -220,8 +220,7 @@ getBreaks <- function(x, n, split.prop=0.98, symmetric=TRUE){
         x <- x[intersect(genes,row.names(x)),]
     }
     if(do.scale){
-        #x <- x[apply(x,1,FUN=sd)>0,]
-        x <- t(.safescale(t(x)))
+        x <- safescale(x, byRow=TRUE)
     }
     if(includeMissing && length(missg <- setdiff(genes, row.names(x)))>0){
         x2 <- matrix( NA_real_, ncol=ncol(x), nrow=length(missg),
@@ -286,33 +285,33 @@ qualitativeColors <- function(names, ...){
 }
 
 
-.safescale <- function(x){
-    if(!any(is.na(x))) base::scale(x)
-    if(!is.null(dim(x))){
-        y <- apply(x,2,.safescale)
-        row.names(y) <- row.names(x)
-        return(y)
-    }
-    if(all(is.na(x))) return(x)
-    if(sd(x,na.rm=TRUE)>0) return(base::scale(x))
-    if(sum(!is.na(x))==0) return(base::scale(as.numeric(!is.na(x))))
-    rep(0,length(x))
-}
-
-
-#' scale2
+#' safescale
 #'
-#' A wrapper for non-centered unit-variance scaling
-#' @param x A matrix whose rows are to be scaled.
+#' Equivalent to `base::scale`, but handling missing values and null variance
+#' a bit more elegantly.
 #'
-#' @return A matrix of dimensions like x
+#' @param x A matrix.
+#' @param center Logical, whether to center values.
+#' @param byRow Logical, whether to scale by rows instead of columns.
+#'
+#' @return A scaled matrix.
 #' @export
 #'
 #' @examples
-#' scale2(matrix(1:9,nrow=3))
-scale2 <- function(x){
-  y <- t(scale(t(x),center=FALSE))
-  y[is.nan(y)] <- 0
+#' m <- matrix(rnorm(100), nrow=10)
+#' m.scaled <- safescale(m)
+safescale <- function(x, center=TRUE, byRow=FALSE){
+  if(!any(is.na(x)) && !byRow) return(base::scale(x, center=center))
+  if(is.null(dim(x))) x <- matrix(x)
+  if(!byRow) x <- t(x)
+  y <- x
+  if(center) y <- y - rowMeans(x, na.rm=TRUE)
+  rv <- matrixStats::rowVars(y, na.rm=TRUE)
+  w <- which(rowSums(is.na(x))<ncol(y) & is.na(rv))
+  rv[w] <-  matrixStats::rowMaxs(y[w,], na.rm=TRUE)
+  y <- y/rv
+  y[which(rowSums(is.na(y) | is.infinite(y))==ncol(y)),] <- 0
+  if(byRow) y <- t(y)
   y
 }
 

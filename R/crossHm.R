@@ -104,7 +104,7 @@ crossHm <- function(ses, features, do.scale=TRUE, uniqueScale=FALSE,
                   do.scale=do.scale && !uniqueScale, includeMissing=TRUE )
   if(do.scale && uniqueScale){
       x <- do.call(cbind, dats)
-      x <- t(.safescale(t(x)))
+      x <- safescale(x, byRow=TRUE)
       dl <- lapply(dats, FUN=function(x) seq_len(ncol(x)))
       dl2 <- c(0,cumsum(lengths(dl)[-length(dl)]))
       dats <- lapply( seq_along(dl), FUN=function(i)
@@ -125,7 +125,7 @@ crossHm <- function(ses, features, do.scale=TRUE, uniqueScale=FALSE,
   if(!is.null(sortBy) && length(sortBy)>0){
       xs <- dats
       if(do.scale && !uniqueScale)
-          xs <- lapply(xs, FUN=function(x){ t(.safescale(t(x))) })
+          xs <- lapply(xs, byRow=TRUE, FUN=safescale)
       xs <- do.call(cbind, xs[sortBy])
       features <- row.names(sortRows(xs,toporder=toporder))
       dats <- lapply(dats, FUN=function(x) x[features,,drop=FALSE])
