@@ -127,7 +127,7 @@ sechm <- function(se, features, do.scale=FALSE, assayName=.getDef("assayName"),
   if(is.null(top_annotation)) top_annotation <- .defaultAnno(se, "top")
   if(is.null(bottom_annotation)) bottom_annotation <- .defaultAnno(se, "bottom")
   
-  if(!is(left_annotation,"HeatmapAnnotation")){
+  if(!is(left_annotation,"HeatmapAnnotation") && length(left_annotation)>0){
     if(is.character(left_annotation)){
       left_annotation <- .prepareAnnoDF(
         rowData(se)[row.names(x),,drop=FALSE], anno_colors,
@@ -137,7 +137,7 @@ sechm <- function(se, features, do.scale=FALSE, assayName=.getDef("assayName"),
                               annorow_title_side))
     }
   }
-  if(!is(right_annotation,"HeatmapAnnotation") && !is.null(right_annotation)){
+  if(!is(right_annotation,"HeatmapAnnotation") && length(right_annotation)>0){
     if(is.character(right_annotation)){
       right_annotation <- .prepareAnnoDF(
         rowData(se)[row.names(x),,drop=FALSE], anno_colors,
@@ -151,7 +151,7 @@ sechm <- function(se, features, do.scale=FALSE, assayName=.getDef("assayName"),
     right_annotation <- rowAnnotation(highlight=mark)
   }
 
-  if(!is(top_annotation,"HeatmapAnnotation") && !is.null(top_annotation)){
+  if(!is(top_annotation,"HeatmapAnnotation") && length(top_annotation)>0){
     if(is.character(top_annotation)){
       top_annotation <- .prepareAnnoDF(
         colData(se), anno_colors, top_annotation, whichComplex="column",
@@ -159,7 +159,7 @@ sechm <- function(se, features, do.scale=FALSE, assayName=.getDef("assayName"),
         show_annotation_name=!isMult, anno_name_side="right" )
     }
   }
-  if(!is(bottom_annotation,"HeatmapAnnotation") && !is.null(bottom_annotation)){
+  if(!is(bottom_annotation,"HeatmapAnnotation") && length(bottom_annotation)>0){
     if(is.character(bottom_annotation)){
       bottom_annotation <- .prepareAnnoDF(
         colData(se), anno_colors, bottom_annotation, whichComplex="column",

@@ -4,9 +4,13 @@
                   "top_annotation"=c(
                     "Batch", "batch", "Condition","condition", "Group", "group",
                     "Dataset", "Genotype", "genotype", "cluster_id", "group_id",
-                    "celltype"),
-                  "left_annotation"=c(), gaps_at=c("Dataset","cluster_id"),
+                    "celltype"), gaps_at=c("Dataset","cluster_id"),
                   breaks=NULL)
+  names(emptyAnnos) <- emptyAnnos <- c("bottom_annotation", "left_annotation",
+                                       "right_annotation", "anno_rows",
+                                       "anno_columns")
+  options <- c(options, lapply(emptyAnnos, FUN=function(x) character(0)))
+
   env <- new.env(parent=emptyenv())
 
   list(set=function(variable, value) {
