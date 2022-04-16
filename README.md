@@ -20,7 +20,7 @@ BiocManager::install("plger/sechm")
 Example usage:
 
 ```r
-sechm(SE, genes=myGenes, top_annotation="Time", do.scale=TRUE, gaps_at="Condition",
+sechm(SE, features=myGenes, top_annotation="Time", do.scale=TRUE, gaps_at="Condition",
        mark=c("Gm14288","Fos","Arc"))
 ```
 
