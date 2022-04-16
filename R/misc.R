@@ -381,6 +381,8 @@ scale2 <- function(x){
 
 
 .defaultAnno <- function(se, type="left"){
+  if(!is.null(dv <- metadata(se)$default_view) && 
+     !is.null(dv <- dv[[paste0(type,"_annotation")]])) return(dv)
   if(type=="top" && !is.null(dv <- metadata(se)$default_view) &&
      sum(lengths(dv <- unique(c(dv$gridvar, dv$groupvar, dv$colvar))))>0)
     return(dv)
