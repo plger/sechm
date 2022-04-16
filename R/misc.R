@@ -63,26 +63,23 @@ sortRows <- function(x, z=FALSE, toporder=NULL, na.rm=FALSE, method="MDS_angle",
 
 
 .chooseAssay <- function(se, assayName=NULL, returnName=FALSE){
+  if(length(assays(se))==0) stop("The object has no assay!")
+  assayGiven <- !is.null(assayName)
   a <- .getDef("assayName")
-  if(is.null(assayName) && !is.null(assayNames(se))){
-    assayName <- intersect(assayNames(se), a)
-    if(length(assayName)>0){
-      assayName <- assayName[1]
-      message("Using assay ", assayName)
-    }else{
-      assayName <- NULL
-    }
+  if(!assayGiven && !is.null(assayNames(se))){
+    assayName <- intersect(a,assayNames(se))
+    if(is.null(assayName)) assayName <- head(assayNames(se),1)
+    if(length(assayName)>1) assayName <- assayName[1]
+    if(!assayGiven) message("Using assay ", assayName)
+  }else if(!assayGiven && is.null(assayNames(se))){
+    assayName <- 1L
+    if(length(assays(se))>1)
+      message("Assay unspecified, and multiple assays present; ",
+              "will use the first one.")
   }
   if(!is.null(assayName) && !is.numeric(assayName) &&
      !any(assayName %in% assayNames(se)))
       stop("Assay '", assayName, "' not found!")
-  if(is.null(assayName)){
-    if(length(assays(se))>1) message("Assay unspecified, and multiple assays",
-                                        " present - will use the first one.")
-    assayName <- 1
-  }else{
-    assayName <- intersect(assayName,assayNames(se))[1]
-  }
   if(returnName) return(assayName)
   assays(se)[[assayName]]
 }
