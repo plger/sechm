@@ -31,14 +31,10 @@
 #' Alternatively, an `HeatmapAnnotation` object.
 #' @param right_annotation Columns of `rowData` to use for left annotation.
 #' Alternatively, an `HeatmapAnnotation` object.
-#' @param anno_rows Deprecated. Use `left_annotation` or `right_annotation`
-#' instead.
 #' @param top_annotation Columns of `colData` to use for top annotation.
 #' Alternatively, an `HeatmapAnnotation` object.
 #' @param bottom_annotation Columns of `colData` to use for bottom annotation.
 #' Alternatively, an `HeatmapAnnotation` object.
-#' @param anno_columns Deprecated. Use `top_annotation` or `bottom_annotation`
-#' instead.
 #' @param anno_colors List of colors to use for annotation.
 #' @param annorow_title_side Side (top or bottom) of row annotation names
 #' @param name The name of the heatmap, eventually appearing as title of the
@@ -75,17 +71,16 @@ sechm <- function(se, genes, do.scale=FALSE, assayName=.getDef("assayName"),
                   breaks=.getDef("breaks"), gaps_at=.getDef("gaps_at"),
                   gaps_row=NULL, left_annotation=.getDef("anno_rows"),
                   right_annotation=NULL, top_annotation=.getDef("anno_columns"),
-                  bottom_annotation=NULL, anno_rows=NULL, anno_columns=NULL,
-                  anno_colors=list(), show_rownames=NULL, show_colnames=FALSE,
+                  bottom_annotation=NULL, anno_colors=list(), 
+                  show_rownames=NULL, show_colnames=FALSE,
                   isMult=FALSE, show_heatmap_legend=!isMult,
                   show_annotation_legend=TRUE, mark=NULL, na_col="white",
                   annorow_title_side=ifelse(show_colnames,"bottom","top"),
                   includeMissing=FALSE, sort.method="MDS_angle", ...){
 
-  if(!is.null(anno_rows) || !is.null(anno_columns))
-    message("anno_rows and anno_columns are deprecated; please use ",
-            "top_annotation and left_annotation instead.")
-
+  if(is.numeric(genes) && genes==round(genes) && all(genes>=1))
+    genes <- row.names(se)[genes]
+  
   assayName <- .chooseAssay(se, assayName, returnName = TRUE)
   if(is.null(name)){
       if(is.numeric(assayName)){
@@ -124,11 +119,6 @@ sechm <- function(se, genes, do.scale=FALSE, assayName=.getDef("assayName"),
   }
 
   if(!is(left_annotation,"HeatmapAnnotation")){
-    if(is.null(left_annotation)){
-      left_annotation <- anno_rows
-    }else if(!is.null(anno_rows)){
-      warning("anno_rows ignored")
-    }
     if(is.character(left_annotation)){
       left_annotation <- .prepareAnnoDF(
         rowData(se)[row.names(x),,drop=FALSE], anno_colors,
@@ -152,11 +142,6 @@ sechm <- function(se, genes, do.scale=FALSE, assayName=.getDef("assayName"),
   }
 
   if(!is(top_annotation,"HeatmapAnnotation") && !is.null(top_annotation)){
-    if(is.null(top_annotation)){
-      top_annotation <- anno_columns
-    }else if(!is.null(anno_columns)){
-      warning("anno_columns ignored")
-    }
     if(is.character(top_annotation)){
       top_annotation <- .prepareAnnoDF(
         colData(se), anno_colors, top_annotation, whichComplex="column",
