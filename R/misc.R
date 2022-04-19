@@ -297,6 +297,7 @@ qualitativeColors <- function(names, ...){
 #' @return A scaled matrix.
 #' @export
 #'
+#' @importFrom matrixStats rowVars rowMaxs
 #' @examples
 #' m <- matrix(rnorm(100), nrow=10)
 #' m.scaled <- safescale(m)

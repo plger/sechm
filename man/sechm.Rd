@@ -8,7 +8,7 @@ sechm(
   se,
   features,
   do.scale = FALSE,
-  assayName = .getDef("assayName"),
+  assayName = NULL,
   name = NULL,
   sortRowsOn = seq_len(ncol(se)),
   cluster_cols = FALSE,
