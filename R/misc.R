@@ -64,7 +64,8 @@ sortRows <- function(x, z=FALSE, toporder=NULL, na.rm=FALSE, method="MDS_angle",
 
 .chooseAssay <- function(se, assayName=NULL, returnName=FALSE){
   if(length(assays(se))==0) stop("The object has no assay!")
-  if(!is.null(dan <- metadata(se)$default_view$assay) && 
+  if(is.null(assayName) &&
+     !is.null(dan <- metadata(se)$default_view$assay) && 
      length(dan <- intersect(dan,assayNames(se)))>0)
     assayName <- dan[1]
   assayGiven <- !is.null(assayName)
