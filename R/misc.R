@@ -308,7 +308,7 @@ safescale <- function(x, center=TRUE, byRow=FALSE){
   if(!byRow) x <- t(x)
   y <- x
   if(center) y <- y - rowMeans(x, na.rm=TRUE)
-  rv <- matrixStats::rowVars(y, na.rm=TRUE)
+  rv <- sqrt(matrixStats::rowVars(y, na.rm=TRUE))
   w <- which(rowSums(is.na(x))<ncol(y) & is.na(rv))
   rv[w] <-  matrixStats::rowMaxs(y[w,], na.rm=TRUE)
   y <- y/rv
