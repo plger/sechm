@@ -16,7 +16,7 @@ sechm(
   toporder = NULL,
   hmcols = NULL,
   breaks = .getDef("breaks"),
-  gaps_at = .getDef("gaps_at"),
+  gaps_at = NULL,
   gaps_row = NULL,
   left_annotation = NULL,
   right_annotation = NULL,

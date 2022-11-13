@@ -69,7 +69,7 @@
 sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
                   name=NULL, sortRowsOn=seq_len(ncol(se)), cluster_cols=FALSE,
                   cluster_rows=is.null(sortRowsOn), toporder=NULL, hmcols=NULL,
-                  breaks=.getDef("breaks"), gaps_at=.getDef("gaps_at"),
+                  breaks=.getDef("breaks"), gaps_at=NULL,
                   gaps_row=NULL, left_annotation=NULL,
                   right_annotation=NULL, top_annotation=NULL,
                   bottom_annotation=NULL, anno_colors=list(), 
@@ -105,8 +105,8 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
   }
 
   if( is.null(breaks) ){
-      if( (!is.null(assayName) && grepl("^log[2]?FC$",assayName)) || do.scale)
-          breaks <- 0.995
+      if( (!is.null(assayName) && grepl("^log[2]?FC$|scaledLFC",assayName))
+          || do.scale)  breaks <- 0.995
   }
   hmcols <- .getBaseHMcols(se, hmcols)
   cscale <- .prepScale(x, hmcols=hmcols, breaks=breaks)
@@ -178,12 +178,18 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
     }
   }
 
+  if(is.null(gaps_at) && !is.null(metadata(se)$default_view))
+    gaps_at <- metadata(se)$default_view$gridvar
+  if(is.null(gaps_at)) gaps_at <- .getDef("gaps_at")
+  if(!is.null(gaps_at) && length(gaps_at)!=ncol(se))
+    gaps_at <- intersect(gaps_at, colnames(colData(se)))
+  if(isFALSE(gaps_at)) gaps_at <- NULL
   gaps_col <- .getGaps(gaps_at, colData(se), silent=TRUE)
   gaps_row <- .getGaps(gaps_row, rowData(se)[row.names(x),,drop=FALSE])
 
   if(is.null(show_rownames)) show_rownames <- nrow(x)<50 && is.null(mark)
   if(nrow(x)<=2) cluster_rows <- FALSE
-
+  
   Heatmap( x, col=hmcols, na_col=na_col, name=name,
     show_row_names=show_rownames, show_column_names=show_colnames,
     row_split=gaps_row, column_split=gaps_col, cluster_rows=cluster_rows,

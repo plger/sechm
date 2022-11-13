@@ -2,6 +2,7 @@
 
 export(crossHm)
 export(getBreaks)
+export(getDEA)
 export(meltSE)
 export(resetAllSechmOptions)
 export(safescale)

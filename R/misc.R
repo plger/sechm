@@ -323,7 +323,9 @@ safescale <- function(x, center=TRUE, byRow=FALSE){
     if(!silent) warning("Gap field(s) not found in the object's data.")
     return(NULL)
   }
-  as.data.frame(CD)[,x,drop=FALSE]
+  x <- as.data.frame(CD)[,x,drop=FALSE]
+  if(ncol(x)==0) return(NULL)
+  x
 }
 
 #' @importFrom ComplexHeatmap HeatmapAnnotation
@@ -391,4 +393,101 @@ safescale <- function(x, center=TRUE, byRow=FALSE){
   if(type=="left") return(.getDef("anno_rows"))
   if(type=="top") return(.getDef("anno_columns"))
   return(NULL)
+}
+
+
+#' getDEA
+#' 
+#' Extracts (standardized) DEA results from the rowData of an SE object.
+#'
+#' @param se A \code{\link[SummarizedExperiment]{SummarizedExperiment-class}},
+#'   with DEAs each saved as a rowData column of `se`, with the column name 
+#'   prefixed with "DEA."
+#' @param dea The optional name of the DEA to extract
+#' @param homogenize Logical; whether to homogenize the DEA 
+#'
+#' @return The DEA data.frame if `dea` is given, otherwise a named list of 
+#'   data.frames.
+#' @export
+#'
+#' @examples
+#' # loading example SE
+#' data("Chen2017", package="sechm")
+#' # this ones doesn't have saved DEAs in the standard format:
+#' getDEA(Chen2017)
+getDEA <- function(se, dea=NULL, homogenize=TRUE){
+  stopifnot(is(se,"SummarizedExperiment"))
+  deas <- grep("^DEA\\.", colnames(rowData(se)), value=TRUE)
+  names(deas) <- gsub("^DEA\\.", "", deas)
+  deas <- lapply(deas, FUN=function(x){
+    x <- rowData(se)[[x]]
+    if(homogenize) x <- homogenizeDEA(x)
+    x
+  })
+  if(!is.null(dea)){
+    dea <- gsub("^DEA\\.","",dea)
+    if(dea %in% names(deas)) return(deas[[dea]])
+    matches <- grep(dea, names(deas), value=TRUE)
+    if(length(matches)==0){
+      message("No matching DEA found. Available DEAs:\n",
+              paste(names(deas), collapse=", "))
+    }else if(length(matches)==1){
+      message("Returning DEA '", matches,"'")
+      if(homogenize) return(homogenizeDEA(deas[[matches]]))
+      return(deas[[matches]])
+    }else{
+      message("Multiple matches:\n",
+              paste(matches, collapse=", "))
+    }
+    return(NULL)
+  }
+  if(length(deas)==0) return(list())
+  deas[!unlist(lapply(deas, is.null))]
+}
+
+
+#' homogenizeDEA
+#'
+#' Standardizes the outputs of differential expression methods (to an 
+#'   edgeR-like style)
+#'
+#' @param x A data.frame containing the results of a differential expression 
+#'   analysis
+#'
+#' @return A standardized data.frame.
+homogenizeDEA <- function(x){
+  if(is(x,"data.table") || is(x, "DFrame")) x <- as.data.frame(x)
+  if(!is.data.frame(x)) return(NULL)
+  colnames(x) <- gsub("log2FoldChange|log2Fold|log2FC|log2\\(fold_change\\)|log2\\.fold_change\\.",
+                      "logFC", colnames(x))
+  
+  abf <- head(intersect(colnames(x),
+                        c("logCPM", "meanExpr", "AveExpr", "baseMean")), 1)
+  if (length(abf)==1){
+    x$meanExpr <- x[, abf]
+    if(abf == "baseMean") x$meanExpr <- log1p(x$meanExpr)
+  }else if(all(c("value_1","value_2") %in% colnames(x))){ # cufflinks
+    x$meanExpr <- log(1+x$value_1+x$value_2)
+  }
+  colnames(x) <- gsub("P\\.Value|pvalue|p_value|pval", "PValue", colnames(x))
+  colnames(x) <- gsub("padj|adj\\.P\\.Val|q_value|qval", "FDR", colnames(x))
+  if (!("FDR" %in% colnames(x))) 
+    x$FDR <- p.adjust(x$PValue, method = "fdr")
+  f <- grep("^logFC$",colnames(x),value=TRUE)
+  if(length(f)==0) f <- grep("logFC",colnames(x),value=TRUE)
+  if(length(f)==0) warning("No logFC found.")
+  if(length(f)>1){
+    message("Using ",f[1])
+    x[["logFC"]] <- x[[f[1]]]
+  }
+  x$F <- NULL
+  x$FDR[is.na(x$FDR)] <- 1
+  x <- x[!is.na(x$logFC),]
+  if(!is.null(x$PValue)){
+    x <- x[!is.na(x$PValue),]
+    x <- x[order(x$PValue),]
+  }else{
+    x <- x[order(x$FDR),]
+  }
+  x
 }

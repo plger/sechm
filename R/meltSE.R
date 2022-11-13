@@ -12,8 +12,12 @@
 #'   Use `colDat.columns=NA` in order not to include any.
 #' @param rowDat.columns The rowData columns to include (default all). Use 
 #'   `rowData=NA` to not include any.
+#' @param flatten Logical, whether to flatten nested data.frames.
+#' @param baseDF Logical, whether to return a base data.frame (removing columns
+#'   containing other objects such as atomic lists). Filtering is applied after
+#'   flattening.
 #'
-#' @return A data.frame.
+#' @return A data.frame (or a DataFrame).
 #'
 #' @examples
 #' data("Chen2017", package="sechm")
@@ -22,7 +26,7 @@
 #' @import SummarizedExperiment
 #' @export
 meltSE <- function(x, features, assayName=NULL, colDat.columns=NULL,
-                   rowDat.columns=NULL){
+                   rowDat.columns=NULL, flatten=TRUE, baseDF=TRUE){
   features <- intersect(features, row.names(x))
   if(is.null(colDat.columns)) colDat.columns <- colnames(colData(x))
   if(all(is.na(colDat.columns))) colDat.columns <- c()
@@ -40,8 +44,33 @@ meltSE <- function(x, features, assayName=NULL, colDat.columns=NULL,
   a <- lapply(a, FUN=function(x) x[features,,drop=FALSE])
   df <- data.frame( feature=rep(features,ncol(x)),
                     sample=rep(colnames(x), each=length(features)) )
-  for(f in colDat.columns) df[[f]] <- rep(colData(x)[[f]],each=length(features))
-  for(f in rowDat.columns) df[[f]] <- rep(rowData(x)[features,f], ncol(x))
+  df <- cbind(df, .flattenDF(colData(x)[rep(seq_len(ncol(x)),each=length(features)),
+                                        colDat.columns, drop=FALSE],
+                             remove=!flatten))
+  df <- cbind(df, .flattenDF(rowData(x)[rep(features, ncol(x)),
+                                        rowDat.columns, drop=FALSE],
+                             remove=!flatten))
+  if(baseDF){
+    for(f in colnames(df)){
+      if(!is.vector(df[[f]]) && !is.factor(df[[f]])) df[[f]] <- NULL
+    }
+    df <- as.data.frame(df)
+  }
   for(v in names(a)) df[[v]] <- as.numeric(a[[v]])
   df
+}
+
+
+.flattenDF <- function(x, columns=colnames(x), remove=FALSE){
+  x <- DataFrame(x)[,columns,drop=FALSE]
+  isdf <- unlist(lapply(x, FUN=function(x) is.data.frame(x) || is(x, "DFrame")))
+  for(f in names(x)[which(isdf)]){
+    y <- x[[f]]
+    colnames(y) <- paste(f, colnames(y), sep=".")
+    x[[f]] <- NULL
+    if(!remove) x <- cbind(x, y)
+  }
+  if(!any(sapply(x, FUN=function(x) !is.vector(x) && !is.factor(x))))
+    x <- as.data.frame(x)
+  x
 }

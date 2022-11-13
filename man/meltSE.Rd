@@ -9,7 +9,9 @@ meltSE(
   features,
   assayName = NULL,
   colDat.columns = NULL,
-  rowDat.columns = NULL
+  rowDat.columns = NULL,
+  flatten = TRUE,
+  baseDF = TRUE
 )
 }
 \arguments{
@@ -27,9 +29,15 @@ Use `colDat.columns=NA` in order not to include any.}
 
 \item{rowDat.columns}{The rowData columns to include (default all). Use 
 `rowData=NA` to not include any.}
+
+\item{flatten}{Logical, whether to flatten nested data.frames.}
+
+\item{baseDF}{Logical, whether to return a base data.frame (removing columns
+containing other objects such as atomic lists). Filtering is applied after
+flattening.}
 }
 \value{
-A data.frame.
+A data.frame (or a DataFrame).
 }
 \description{
 Melts a SE object into a \code{\link[ggplot2]{ggplot}}-ready long data.frame.
