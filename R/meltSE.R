@@ -24,6 +24,7 @@
 #' head(meltSE(Chen2017,"Fos"))
 #'
 #' @import SummarizedExperiment
+#' @importFrom S4Vectors DataFrame
 #' @export
 meltSE <- function(x, features, assayName=NULL, colDat.columns=NULL,
                    rowDat.columns=NULL, flatten=TRUE, baseDF=TRUE){
