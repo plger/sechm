@@ -3,6 +3,7 @@
 export(crossHm)
 export(getBreaks)
 export(getDEA)
+export(log2FC)
 export(meltSE)
 export(resetAllSechmOptions)
 export(safescale)

@@ -492,3 +492,78 @@ homogenizeDEA <- function(x){
   }
   x
 }
+
+
+#' log2FC
+#'
+#' Generates log2(foldchange) matrix/assay, eventually on a per-batch fashion.
+#'
+#' @param x A numeric matrix, or a `SummarizedExperiment` object
+#' @param fromAssay The assay to use if `x` is a `SummarizedExperiment`
+#' @param controls A vector of which samples should be used as controls for
+#'   foldchange calculations.
+#' @param by An optional vector indicating groups/batches by which the controls
+#'   will be averaged to calculate per-group foldchanges.
+#' @param isLog Logical; whether the data is log-transformed. If NULL, will
+#'   attempt to figure it out from the data and/or assay name
+#' @param agFun Aggregation function for the baseline (default rowMeans)
+#' @param toAssay The name of the assay in which to save the output. If left to
+#'   the default value, both a log2FC assay as well as a scaled log2FC assay 
+#'   (scaled by unit-variance, but not centered) will be saved in the object.
+#' @param pseudocount If the origin assay is not log-transformed, `pseudocount`
+#'   will be added to the values before calculating a log-transformation. This
+#'   prevents infinite fold-changes and moderates them.
+#'
+#' @return An object of same class as `x`; if a `SummarizedExperiment`, will
+#' have the additional assay named from `toAssay`.
+#'
+#' @examples
+#' log2FC( matrix(rnorm(40), ncol=4), controls=1:2 )
+#'
+#' @import SummarizedExperiment
+#' @export
+log2FC <- function(x, fromAssay=NULL, controls, by=NULL, isLog=NULL,
+                   agFun=rowMeans, toAssay="log2FC", pseudocount=1L){
+  if(is.null(colnames(x))) colnames(x) <- paste0("S",seq_len(ncol(x)))
+  if(is(x, "SummarizedExperiment")){
+    if(is.null(fromAssay))
+      stop("If `x` is a SummarizedExperiment, specify the assay to use ",
+           "using `fromAssay`")
+    if(!(fromAssay %in% assayNames(x)))
+      stop("`fromAssay` '", fromAssay, "' not found.")
+    if(!is.null(by) && length(by)==1 && by %in% colnames(colData(x)))
+      by <- colData(x)[[by]]
+    a <- assays(x)[[fromAssay]]
+  }else{
+    if(!is.matrix(x))
+      stop("`x` should either be a SummarizedExperiment or a numeric matrix.")
+    a <- x
+  }
+  if(is.null(isLog)){
+    if(!is.null(fromAssay) && grepl("^log",fromAssay, ignore.case=TRUE)){
+      isLog <- TRUE
+    }else{
+      isLog <- any(a<0)
+    }
+  }
+  if(!isLog) log2(a+pseudocount)
+  if(is.logical(controls)) controls <- which(controls)
+  if(!all(controls %in% seq_len(ncol(a))))
+    stop("Some control indexes are out of range.")
+  if(is.null(by)) by <- rep(1,ncol(a))
+  i <- split(1:ncol(a),by)
+  lfc <- do.call(cbind, lapply(i, FUN=function(x){
+    c2 <- intersect(x,controls)
+    if(length(c2)==0) stop("Some groups of `by` have no controls.")
+    a[,x,drop=FALSE]-agFun(a[,c2,drop=FALSE],na.rm=TRUE)
+  }))
+  lfc <- lfc[,colnames(x)]
+  if(is(x, "SummarizedExperiment")){
+    assays(x)[[toAssay]] <- lfc
+    if(toAssay=="log2FC")
+      assays(x)$scaledLFC <- safescale(assays(x)$log2FC,
+                                       center=FALSE, byRow=TRUE)
+    return(x)
+  }
+  lfc
+}
