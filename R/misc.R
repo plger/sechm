@@ -83,7 +83,8 @@ sortRows <- function(x, z=FALSE, toporder=NULL, na.rm=FALSE, method="MDS_angle",
      !any(assayName %in% assayNames(se)))
       stop("Assay '", assayName, "' not found!")
 
-  if(length(assayName)>1) message("Using assay ", assayName[1])
+  if(length(assayName)==0) assayName <- assayNames(se)
+  if(length(assayName)>1) message("Using assay '", assayName[1],"'")
   assayName <- assayName[1]
   if(returnName) return(assayName)
   assays(se)[[assayName]]
