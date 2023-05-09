@@ -154,9 +154,15 @@ crossHm <- function(ses, features, do.scale=TRUE, uniqueScale=FALSE,
   }
 
   ses <- lapply(seq_along(ses), FUN=function(i){
-      RD <- rowData(ses[[i]])[features,,drop=FALSE]
-      se <- SummarizedExperiment( list(a=dats[[i]]), colData=CDs[[i]],
-                                  rowData=RD, metadata=metadata(ses[[i]]) )
+      se <- tryCatch({
+        RD <- as.data.frame(rowData(ses[[i]])[features,,drop=FALSE])
+        row.names(RD) <- features
+        SummarizedExperiment( list(a=dats[[i]]), colData=CDs[[i]],
+                              rowData=RD, metadata=metadata(ses[[i]]) )
+        }, error=function(e){
+                       SummarizedExperiment(list(a=dats[[i]]), colData=CDs[[i]],
+                                            metadata=metadata(ses[[i]]) )
+        })
       row.names(se) <- features
       se
   })
