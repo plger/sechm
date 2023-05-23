@@ -8,7 +8,7 @@ getDEA(se, dea = NULL, homogenize = TRUE)
 }
 \arguments{
 \item{se}{A \code{\link[SummarizedExperiment]{SummarizedExperiment-class}},
-with DEAs each saved as a rowData column of `se`, with the column name 
+with DEAs each saved as a rowData column of `se`, with the column name
 prefixed with "DEA."}
 
 \item{dea}{The optional name of the DEA to extract}
@@ -16,7 +16,7 @@ prefixed with "DEA."}
 \item{homogenize}{Logical; whether to homogenize the DEA}
 }
 \value{
-The DEA data.frame if `dea` is given, otherwise a named list of 
+The DEA data.frame if `dea` is given, otherwise a named list of
   data.frames.
 }
 \description{

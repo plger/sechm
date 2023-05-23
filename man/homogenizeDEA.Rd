@@ -7,13 +7,13 @@
 homogenizeDEA(x)
 }
 \arguments{
-\item{x}{A data.frame containing the results of a differential expression 
+\item{x}{A data.frame containing the results of a differential expression
 analysis}
 }
 \value{
 A standardized data.frame.
 }
 \description{
-Standardizes the outputs of differential expression methods (to an 
+Standardizes the outputs of differential expression methods (to an
   edgeR-like style)
 }

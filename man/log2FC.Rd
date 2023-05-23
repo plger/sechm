@@ -33,14 +33,14 @@ attempt to figure it out from the data and/or assay name}
 \item{agFun}{Aggregation function for the baseline (default rowMeans)}
 
 \item{toAssay}{The name of the assay in which to save the output. If left to
-the default value, both a log2FC assay as well as a scaled log2FC assay 
+the default value, both a log2FC assay as well as a scaled log2FC assay
 (scaled by unit-variance, but not centered) will be saved in the object.}
 
 \item{pseudocount}{If the origin assay is not log-transformed, `pseudocount`
 will be added to the values before calculating a log-transformation. This
 prevents infinite fold-changes and moderates them.}
 
-\item{ndigits}{Number of digits after the decimal of the log2FC (and 
+\item{ndigits}{Number of digits after the decimal of the log2FC (and
 scaledLFC).}
 }
 \value{

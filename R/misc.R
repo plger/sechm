@@ -65,7 +65,7 @@ sortRows <- function(x, z=FALSE, toporder=NULL, na.rm=FALSE, method="MDS_angle",
 .chooseAssay <- function(se, assayName=NULL, returnName=FALSE){
   if(length(assays(se))==0) stop("The object has no assay!")
   if(is.null(assayName) &&
-     !is.null(dan <- metadata(se)$default_view$assay) && 
+     !is.null(dan <- metadata(se)$default_view$assay) &&
      length(dan <- intersect(dan,assayNames(se)))>0)
     assayName <- dan[1]
   assayGiven <- !is.null(assayName)
@@ -79,7 +79,7 @@ sortRows <- function(x, z=FALSE, toporder=NULL, na.rm=FALSE, method="MDS_angle",
       message("Assay unspecified, and multiple assays present; ",
               "will use the first one.")
   }
-  if(assayGiven && !is.numeric(assayName) && 
+  if(assayGiven && !is.numeric(assayName) &&
      !any(assayName %in% assayNames(se)))
       stop("Assay '", assayName, "' not found!")
 
@@ -384,7 +384,7 @@ safescale <- function(x, center=TRUE, byRow=FALSE){
 
 
 .defaultAnno <- function(se, type="left"){
-  if(!is.null(dv <- metadata(se)$default_view) && 
+  if(!is.null(dv <- metadata(se)$default_view) &&
      !is.null(dv <- dv[[paste0(type,"_annotation")]])) return(dv)
   if(type=="top" && !is.null(dv <- metadata(se)$default_view) &&
      sum(lengths(dv <- unique(c(dv$gridvar, dv$groupvar, dv$colvar))))>0)
@@ -398,16 +398,16 @@ safescale <- function(x, center=TRUE, byRow=FALSE){
 
 
 #' getDEA
-#' 
+#'
 #' Extracts (standardized) DEA results from the rowData of an SE object.
 #'
 #' @param se A \code{\link[SummarizedExperiment]{SummarizedExperiment-class}},
-#'   with DEAs each saved as a rowData column of `se`, with the column name 
+#'   with DEAs each saved as a rowData column of `se`, with the column name
 #'   prefixed with "DEA."
 #' @param dea The optional name of the DEA to extract
-#' @param homogenize Logical; whether to homogenize the DEA 
+#' @param homogenize Logical; whether to homogenize the DEA
 #'
-#' @return The DEA data.frame if `dea` is given, otherwise a named list of 
+#' @return The DEA data.frame if `dea` is given, otherwise a named list of
 #'   data.frames.
 #' @export
 #'
@@ -440,19 +440,57 @@ getDEA <- function(se, dea=NULL, homogenize=TRUE){
       message("Multiple matches:\n",
               paste(matches, collapse=", "))
     }
+    message("No DEA found!")
     return(NULL)
   }
   if(length(deas)==0) return(list())
   deas[!unlist(lapply(deas, is.null))]
 }
 
+#' Get DEGs from a SE or list of DEA results
+#'
+#' @param x A `SummarizedExperiment` object with DEA results in rowData, or a
+#'   list of DEA result data.frames.
+#' @param dea Which DEA(s) to use (default all). Used only if `x` is a
+#'   `SummarizedExperiment`.
+#' @param lfc.th Absolute log-foldchange threshold.
+#' @param fdr.th FDR threshold.
+#' @param direction If !=0, specifies whether to fetch only upregulated or
+#'   downregulated features
+#' @param merge Logical; whether to take the union of DEGs from the different
+#'   DEAs (when more than one).
+#'
+#' @return A character vector with the significant features, or a list of such
+#'   vectors.
+#' @export
+#'
+#' @examples
+#' # loading example SE
+#' data("Chen2017", package="sechm")
+#' # this ones doesn't have saved DEAs in the standard format:
+#' getDEGs(Chen2017)
+getDEGs <- function(x, dea=NULL, lfc.th=log2(1.3), fdr.th=0.05, direction=0,
+                    merge=TRUE){
+  if(is(x,"SummarizedExperiment")) x <- getDEA(x, dea=dea)
+  stopifnot(is.list(x) || is(x,"DFrame"))
+  if(is.data.frame(x) || is(x,"DFrame")){
+    x <- x[which(abs(x$logFC)>=lfc.th & x$FDR<=fdr.th),]
+    if(direction != 0) x <- x[which(sign(x$logFC)==sign(direction)),]
+    return(row.names(x))
+  }
+  x <- lapply(x, lfc.th=lfc.th, fdr.th=fdr.th, direction=direction, FUN=getDEGs)
+  if(length(x)==1) return(x[[1]])
+  if(merge) return(unique(unlist(x)))
+  return(x)
+}
+
 
 #' homogenizeDEA
 #'
-#' Standardizes the outputs of differential expression methods (to an 
+#' Standardizes the outputs of differential expression methods (to an
 #'   edgeR-like style)
 #'
-#' @param x A data.frame containing the results of a differential expression 
+#' @param x A data.frame containing the results of a differential expression
 #'   analysis
 #'
 #' @return A standardized data.frame.
@@ -461,7 +499,7 @@ homogenizeDEA <- function(x){
   if(!is.data.frame(x)) return(NULL)
   colnames(x) <- gsub("log2FoldChange|log2Fold|log2FC|log2\\(fold_change\\)|log2\\.fold_change\\.",
                       "logFC", colnames(x))
-  
+
   abf <- head(intersect(colnames(x),
                         c("logCPM", "meanExpr", "AveExpr", "baseMean")), 1)
   if (length(abf)==1){
@@ -472,7 +510,7 @@ homogenizeDEA <- function(x){
   }
   colnames(x) <- gsub("P\\.Value|pvalue|p_value|pval", "PValue", colnames(x))
   colnames(x) <- gsub("padj|adj\\.P\\.Val|q_value|qval", "FDR", colnames(x))
-  if (!("FDR" %in% colnames(x))) 
+  if (!("FDR" %in% colnames(x)))
     x$FDR <- p.adjust(x$PValue, method = "fdr")
   f <- grep("^logFC$",colnames(x),value=TRUE)
   if(length(f)==0) f <- grep("logFC",colnames(x),value=TRUE)
@@ -508,12 +546,12 @@ homogenizeDEA <- function(x){
 #'   attempt to figure it out from the data and/or assay name
 #' @param agFun Aggregation function for the baseline (default rowMeans)
 #' @param toAssay The name of the assay in which to save the output. If left to
-#'   the default value, both a log2FC assay as well as a scaled log2FC assay 
+#'   the default value, both a log2FC assay as well as a scaled log2FC assay
 #'   (scaled by unit-variance, but not centered) will be saved in the object.
 #' @param pseudocount If the origin assay is not log-transformed, `pseudocount`
 #'   will be added to the values before calculating a log-transformation. This
 #'   prevents infinite fold-changes and moderates them.
-#' @param ndigits Number of digits after the decimal of the log2FC (and 
+#' @param ndigits Number of digits after the decimal of the log2FC (and
 #'   scaledLFC).
 #'
 #' @return An object of same class as `x`; if a `SummarizedExperiment`, will
