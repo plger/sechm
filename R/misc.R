@@ -513,6 +513,8 @@ homogenizeDEA <- function(x){
 #' @param pseudocount If the origin assay is not log-transformed, `pseudocount`
 #'   will be added to the values before calculating a log-transformation. This
 #'   prevents infinite fold-changes and moderates them.
+#' @param ndigits Number of digits after the decimal of the log2FC (and 
+#'   scaledLFC).
 #'
 #' @return An object of same class as `x`; if a `SummarizedExperiment`, will
 #' have the additional assay named from `toAssay`.
@@ -523,7 +525,7 @@ homogenizeDEA <- function(x){
 #' @import SummarizedExperiment
 #' @export
 log2FC <- function(x, fromAssay=NULL, controls, by=NULL, isLog=NULL,
-                   agFun=rowMeans, toAssay="log2FC", pseudocount=1L){
+                   agFun=rowMeans, toAssay="log2FC", pseudocount=1L, ndigits=2){
   if(is.null(colnames(x))) colnames(x) <- paste0("S",seq_len(ncol(x)))
   if(is(x, "SummarizedExperiment")){
     if(is.null(fromAssay))
@@ -544,6 +546,7 @@ log2FC <- function(x, fromAssay=NULL, controls, by=NULL, isLog=NULL,
       isLog <- TRUE
     }else{
       isLog <- any(a<0)
+      if(isLog) message("Assuming assay values to be on a log-scale")
     }
   }
   if(!isLog) log2(a+pseudocount)
@@ -558,11 +561,14 @@ log2FC <- function(x, fromAssay=NULL, controls, by=NULL, isLog=NULL,
     a[,x,drop=FALSE]-agFun(a[,c2,drop=FALSE],na.rm=TRUE)
   }))
   lfc <- lfc[,colnames(x)]
+  if(!is.null(ndigits)) lfc <- round(lfc, ndigits)
   if(is(x, "SummarizedExperiment")){
     assays(x)[[toAssay]] <- lfc
-    if(toAssay=="log2FC")
-      assays(x)$scaledLFC <- safescale(assays(x)$log2FC,
-                                       center=FALSE, byRow=TRUE)
+    if(toAssay=="log2FC"){
+      slfc <- safescale(assays(x)$log2FC, center=FALSE, byRow=TRUE)
+      if(!is.null(ndigits)) slfc <- round(slfc, ndigits)
+      assays(x)$scaledLFC <- slfc
+    }
     return(x)
   }
   lfc
