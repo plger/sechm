@@ -39,7 +39,9 @@ sechm(
 \arguments{
 \item{se}{A \code{\link[SummarizedExperiment]{SummarizedExperiment-class}}.}
 
-\item{features}{An optional vector of features (i.e. row names of `se`)}
+\item{features}{A vector of features (i.e. row names of `se`). Alternatively,
+can be a list of feature sets, in which case these will be plotted as
+different row chunks.}
 
 \item{do.scale}{Logical; whether to scale rows (default FALSE).}
 
@@ -57,7 +59,7 @@ color scale.}
 \item{cluster_rows}{Whether to cluster rows; default FALSE if
 `do.sortRows=TRUE`.}
 
-\item{toporder}{Optional verctor of categories on which to supra-order when
+\item{toporder}{Optional vector of categories on which to supra-order when
 sorting rows, or name of a `rowData` column to use for this purpose.}
 
 \item{hmcols}{Colors for the heatmap.}
@@ -83,7 +85,7 @@ Alternatively, an `HeatmapAnnotation` object.}
 Alternatively, an `HeatmapAnnotation` object.}
 
 \item{top_annotation}{Columns of `colData` to use for top annotation.
-Alternatively, an `HeatmapAnnotation` object. To disable (overriding 
+Alternatively, an `HeatmapAnnotation` object. To disable (overriding
   defaults), use `top_annotation=character()`.}
 
 \item{bottom_annotation}{Columns of `colData` to use for bottom annotation.

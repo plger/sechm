@@ -320,6 +320,10 @@ safescale <- function(x, center=TRUE, byRow=FALSE){
 
 .getGaps <- function(x, CD, silent=TRUE){
   if(is.null(x)) return(NULL)
+  if(is.factor(x) && length(x)>1){
+    if(!is.null(names(x))) x <- x[row.names(CD)]
+    if(length(x)==nrow(CD)) return(x)
+  }
   if(!all(x %in% colnames(CD))){
     if(!silent) warning("Gap field(s) not found in the object's data.")
     return(NULL)
@@ -416,7 +420,7 @@ safescale <- function(x, center=TRUE, byRow=FALSE){
 #' data("Chen2017", package="sechm")
 #' # this ones doesn't have saved DEAs in the standard format:
 #' getDEA(Chen2017)
-getDEA <- function(se, dea=NULL, homogenize=TRUE){
+getDEA <- function(se, dea=NULL, homogenize=FALSE){
   stopifnot(is(se,"SummarizedExperiment"))
   deas <- grep("^DEA\\.", colnames(rowData(se)), value=TRUE)
   names(deas) <- gsub("^DEA\\.", "", deas)
@@ -610,4 +614,36 @@ log2FC <- function(x, fromAssay=NULL, controls, by=NULL, isLog=NULL,
     return(x)
   }
   lfc
+}
+
+#' Set rowData attribute of given rows
+#'
+#' @param se A `SummarizedExperiment` object
+#' @param values A named vector of values, where the names correspond to rows of
+#'   `se`
+#' @param name The name of the rowData column in which to store the attribute.
+#' @param clear Logical; whether to clear out any pre-existing such column.
+#' @param other The value for unspecified rows (default NA)
+#'
+#' @return The modified `se` object.
+#' @export
+#'
+#' @examples
+#' data("Chen2017", package="sechm")
+#' Chen2017 <- setRowAttr(Chen2017, c("Arc"=1,"Junb"=1,"Npas4"=2))
+setRowAttr <- function(se, values, name="cluster", clear=TRUE, other=NA){
+  if(is.data.frame(values)){
+    stopifnot(!is.null(row.names(values)))
+    values <- lapply(values, FUN=function(x) setNames(x,row.names(values)))
+    for(v in names(values)){
+      se <- setRowAttr(se, values[[v]], name=v, clear=clear)
+    }
+    return(se)
+  }
+  stopifnot(is.vector(values))
+  stopifnot(!is.null(names(values)))
+  stopifnot(any(names(values) %in% row.names(se)))
+  if(clear || is.null(rowData(se)[[name]])) rowData(se)[[name]] <- other
+  rowData(se)[names(values),name] <- as.vector(values)
+  se
 }

@@ -1,3 +1,6 @@
+Changes in version 1.9.3 (2023-06-21)
++ fixed a few bugs, added a few extras
++ enabled list of features as input
 Changes in version 1.3.1 (2022-04-15)
 + fixed a few bugs
 + better support for default arguments

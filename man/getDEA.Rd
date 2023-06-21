@@ -4,7 +4,7 @@
 \alias{getDEA}
 \title{getDEA}
 \usage{
-getDEA(se, dea = NULL, homogenize = TRUE)
+getDEA(se, dea = NULL, homogenize = FALSE)
 }
 \arguments{
 \item{se}{A \code{\link[SummarizedExperiment]{SummarizedExperiment-class}},

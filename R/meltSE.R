@@ -4,13 +4,13 @@
 #'
 #' @param x An object of class
 #' \code{\link[SummarizedExperiment]{SummarizedExperiment-class}}
-#' @param features A vector of features (i.e. row.names) to include. Use 
+#' @param features A vector of features (i.e. row.names) to include. Use
 #'   `features=NULL` to include all.
-#' @param assayName The name(s) of the assay(s) to use. If NULL and the assays 
+#' @param assayName The name(s) of the assay(s) to use. If NULL and the assays
 #'   are named, all of them will be included.
 #' @param colDat.columns The colData columns to include (defaults includes all).
 #'   Use `colDat.columns=NA` in order not to include any.
-#' @param rowDat.columns The rowData columns to include (default all). Use 
+#' @param rowDat.columns The rowData columns to include (default all). Use
 #'   `rowData=NA` to not include any.
 #' @param flatten Logical, whether to flatten nested data.frames.
 #' @param baseDF Logical, whether to return a base data.frame (removing columns
@@ -64,6 +64,7 @@ meltSE <- function(x, features, assayName=NULL, colDat.columns=NULL,
 
 .flattenDF <- function(x, columns=colnames(x), remove=FALSE){
   x <- DataFrame(x)[,columns,drop=FALSE]
+  if(ncol(x)==0) return(x)
   isdf <- unlist(lapply(x, FUN=function(x) is.data.frame(x) || is(x, "DFrame")))
   for(f in names(x)[which(isdf)]){
     y <- x[[f]]

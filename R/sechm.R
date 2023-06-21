@@ -4,7 +4,9 @@
 #' \code{\link[SummarizedExperiment]{SummarizedExperiment-class}}.
 #'
 #' @param se A \code{\link[SummarizedExperiment]{SummarizedExperiment-class}}.
-#' @param features An optional vector of features (i.e. row names of `se`)
+#' @param features A vector of features (i.e. row names of `se`). Alternatively,
+#'   can be a list of feature sets, in which case these will be plotted as
+#'   different row chunks.
 #' @param do.scale Logical; whether to scale rows (default FALSE).
 #' @param assayName An optional vector of assayNames to use. The first available
 #'  will be used, or the first assay if NULL.
@@ -13,7 +15,7 @@
 #' `do.sortRows=TRUE`.
 #' @param sortRowsOn Sort rows by MDS polar order using the specified columns
 #' (default all)
-#' @param toporder Optional verctor of categories on which to supra-order when
+#' @param toporder Optional vector of categories on which to supra-order when
 #' sorting rows, or name of a `rowData` column to use for this purpose.
 #' @param hmcols Colors for the heatmap.
 #' @param breaks Breaks for the heatmap colors. Alternatively, symmetrical
@@ -32,7 +34,7 @@
 #' @param right_annotation Columns of `rowData` to use for left annotation.
 #' Alternatively, an `HeatmapAnnotation` object.
 #' @param top_annotation Columns of `colData` to use for top annotation.
-#' Alternatively, an `HeatmapAnnotation` object. To disable (overriding 
+#' Alternatively, an `HeatmapAnnotation` object. To disable (overriding
 #'   defaults), use `top_annotation=character()`.
 #' @param bottom_annotation Columns of `colData` to use for bottom annotation.
 #' Alternatively, an `HeatmapAnnotation` object.
@@ -72,19 +74,25 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
                   breaks=.getDef("breaks"), gaps_at=NULL,
                   gaps_row=NULL, left_annotation=NULL,
                   right_annotation=NULL, top_annotation=NULL,
-                  bottom_annotation=NULL, anno_colors=list(), 
+                  bottom_annotation=NULL, anno_colors=list(),
                   show_rownames=NULL, show_colnames=FALSE,
                   isMult=FALSE, show_heatmap_legend=!isMult,
                   show_annotation_legend=TRUE, mark=NULL, na_col="white",
                   annorow_title_side=ifelse(show_colnames,"bottom","top"),
                   includeMissing=FALSE, sort.method="MDS_angle", ...){
 
+  if(is.list(features)){
+    if(!is.null(gaps_row))
+      warning("`gaps_row` ignored when passing a list of features")
+    gaps_row <- rep(factor(names(features)),lengths(features))
+    names(gaps_row) <- features <- unlist(features)
+  }
   stopifnot(is.vector(features))
   if(is.numeric(features) && all(features==round(features)) && all(features>=1))
       features <- row.names(se)[features]
   if(is.factor(features)) features <- as.character(features)
   stopifnot(is.character(features))
-  
+
   assayName <- .chooseAssay(se, assayName, returnName = TRUE)
   if(is.null(name)){
       if(is.numeric(assayName)){
@@ -127,7 +135,7 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
     right_annotation <- .defaultAnno(se, "right")
   if(is.null(top_annotation)) top_annotation <- .defaultAnno(se, "top")
   if(is.null(bottom_annotation)) bottom_annotation <- .defaultAnno(se, "bottom")
-  
+
   if(!is(left_annotation,"HeatmapAnnotation")){
     if(length(left_annotation)>0 && is.character(left_annotation)){
       left_annotation <- .prepareAnnoDF(
@@ -140,7 +148,7 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
       left_annotation <- NULL
     }
   }
-  
+
   if(!is(right_annotation,"HeatmapAnnotation")){
     if(length(right_annotation)>0 && is.character(right_annotation)){
       right_annotation <- .prepareAnnoDF(
@@ -152,7 +160,7 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
       right_annotation <- NULL
     }
   }
-  
+
   if(is.null(right_annotation) && !is.null(mark)){
     right_annotation <- rowAnnotation(highlight=mark)
   }
@@ -189,7 +197,7 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
 
   if(is.null(show_rownames)) show_rownames <- nrow(x)<50 && is.null(mark)
   if(nrow(x)<=2) cluster_rows <- FALSE
-  
+
   Heatmap( x, col=hmcols, na_col=na_col, name=name,
     show_row_names=show_rownames, show_column_names=show_colnames,
     row_split=gaps_row, column_split=gaps_col, cluster_rows=cluster_rows,

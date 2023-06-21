@@ -18,16 +18,16 @@ meltSE(
 \item{x}{An object of class
 \code{\link[SummarizedExperiment]{SummarizedExperiment-class}}}
 
-\item{features}{A vector of features (i.e. row.names) to include. Use 
+\item{features}{A vector of features (i.e. row.names) to include. Use
 `features=NULL` to include all.}
 
-\item{assayName}{The name(s) of the assay(s) to use. If NULL and the assays 
+\item{assayName}{The name(s) of the assay(s) to use. If NULL and the assays
 are named, all of them will be included.}
 
 \item{colDat.columns}{The colData columns to include (defaults includes all).
 Use `colDat.columns=NA` in order not to include any.}
 
-\item{rowDat.columns}{The rowData columns to include (default all). Use 
+\item{rowDat.columns}{The rowData columns to include (default all). Use
 `rowData=NA` to not include any.}
 
 \item{flatten}{Logical, whether to flatten nested data.frames.}
