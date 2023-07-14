@@ -106,10 +106,11 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
                  includeMissing=includeMissing )
 
   toporder <- .parseToporder(rowData(se)[row.names(x),,drop=FALSE], toporder)
+  row_order <- NULL
   if(!is.null(sortRowsOn) && length(sortRowsOn)>0 && nrow(x)>2){
-      x2 <- sortRows(x[,sortRowsOn,drop=FALSE], toporder=toporder,
-                     na.rm=TRUE, method=sort.method)
-      x <- x[row.names(x2),]
+    x2 <- sortRows(x[,sortRowsOn,drop=FALSE], toporder=toporder,
+                   na.rm=TRUE, method=sort.method)
+    row_order <- row.names(x2)
   }
 
   if( is.null(breaks) ){
@@ -198,7 +199,7 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
   if(is.null(show_rownames)) show_rownames <- nrow(x)<50 && is.null(mark)
   if(nrow(x)<=2) cluster_rows <- FALSE
 
-  Heatmap( x, col=hmcols, na_col=na_col, name=name,
+  Heatmap( x, col=hmcols, na_col=na_col, name=name, row_order=row_order,
     show_row_names=show_rownames, show_column_names=show_colnames,
     row_split=gaps_row, column_split=gaps_col, cluster_rows=cluster_rows,
     show_heatmap_legend=show_heatmap_legend, cluster_columns=cluster_cols,
