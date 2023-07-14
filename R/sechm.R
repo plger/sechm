@@ -40,6 +40,7 @@
 #' Alternatively, an `HeatmapAnnotation` object.
 #' @param anno_colors List of colors to use for annotation.
 #' @param annorow_title_side Side (top or bottom) of row annotation names
+#' @param annocol_title_side Side (left or right) of column annotation names
 #' @param name The name of the heatmap, eventually appearing as title of the
 #' color scale.
 #' @param show_rownames Whether to show row names (default TRUE if less than
@@ -79,7 +80,8 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
                   isMult=FALSE, show_heatmap_legend=!isMult,
                   show_annotation_legend=TRUE, mark=NULL, na_col="white",
                   annorow_title_side=ifelse(show_colnames,"bottom","top"),
-                  includeMissing=FALSE, sort.method="MDS_angle", ...){
+                  annocol_title_side="right", includeMissing=FALSE,
+                  sort.method="MDS_angle", ...){
 
   if(is.list(features)){
     if(!is.null(gaps_row))
@@ -171,7 +173,9 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
       top_annotation <- .prepareAnnoDF(
         colData(se), anno_colors, top_annotation, whichComplex="column",
         show_legend=(show_annotation_legend && !isMult),
-        show_annotation_name=!isMult, anno_name_side="right" )
+        show_annotation_name=(!is.na(annocol_title_side) && !isMult),
+        anno_name_side=ifelse(is.na(annocol_title_side), "right",
+                              annocol_title_side) )
     }else{
       top_annotation <- NULL
     }
@@ -181,7 +185,9 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
       bottom_annotation <- .prepareAnnoDF(
         colData(se), anno_colors, bottom_annotation, whichComplex="column",
         show_legend=(show_annotation_legend && !isMult),
-        show_annotation_name=!isMult, anno_name_side="right" )
+        show_annotation_name=(!is.na(annocol_title_side) && !isMult),
+        anno_name_side=ifelse(is.na(annocol_title_side), "right",
+                              annocol_title_side) )
     }else{
       bottom_annotation <- NULL
     }

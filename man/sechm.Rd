@@ -31,6 +31,7 @@ sechm(
   mark = NULL,
   na_col = "white",
   annorow_title_side = ifelse(show_colnames, "bottom", "top"),
+  annocol_title_side = "right",
   includeMissing = FALSE,
   sort.method = "MDS_angle",
   ...
@@ -109,6 +110,8 @@ Alternatively, an `HeatmapAnnotation` object.}
 \item{na_col}{Color of NA values}
 
 \item{annorow_title_side}{Side (top or bottom) of row annotation names}
+
+\item{annocol_title_side}{Side (left or right) of column annotation names}
 
 \item{includeMissing}{Logical; whether to include missing features (default
 FALSE)}
