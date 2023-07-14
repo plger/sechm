@@ -128,6 +128,9 @@ sortRows <- function(x, z=FALSE, toporder=NULL, na.rm=FALSE, method="MDS_angle",
 getBreaks <- function(x, n, split.prop=0.98, symmetric=TRUE){
   if(is.logical(split.prop)) split.prop <- ifelse(split.prop,0.98,1)
   if(symmetric){
+    if((n %% 2) == 0)
+      warning("For symmetrical colorscales, an uneven number of colors should",
+              " be provided.")
     breaks <- getBreaks(as.numeric(c(0,abs(x))), n=ceiling((n+1)/2),
                         split.prop=split.prop, symmetric=FALSE)
     return(unique(c(-rev(breaks),breaks)))
