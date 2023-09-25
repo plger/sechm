@@ -248,6 +248,23 @@ crossHm(list(SE1=SE, SE2=SE2), g, do.scale = TRUE,
         top_annotation=c("Condition","Time"), uniqueScale = TRUE)
 ```
 
+# Other convenience functions
+
+The package also includes a number of other convenience functions which we 
+briefly describe here (see the functions' help for more information):
+
+* `log2FC()` adds two assays to an SE object, containing per-sample 
+  log2-foldchanges, as well as scaledLFC (variance-scaled log2-foldchanges, but
+  without centering, so that the controls stay around 0) relative to the mean 
+  of the (specified) controls.
+* The `getDEA()` and `getDEGs()` functions can return a specific DEA or its set
+  of differentially-expressed features, provided that the DEA results tables are
+  each saved in a column of rowData (i.e. the whole table in one column), with a
+  column name starting with `DEA.`.
+* The `meltSE()` function can be used to extract a dataframe (suitable for 
+  ggplot) containing colData, rowData, and assay data for a given subset of 
+  features.
+
 
 <br/><br/>
 
