@@ -69,11 +69,10 @@
 #' @export
 #' @name sechm
 #' @rdname sechm
-sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
-                  name=NULL, sortRowsOn=seq_len(ncol(se)), cluster_cols=FALSE,
-                  cluster_rows=is.null(sortRowsOn), toporder=NULL, hmcols=NULL,
-                  breaks=.getDef("breaks"), gaps_at=NULL,
-                  gaps_row=NULL, left_annotation=NULL,
+sechm <- function(se, features, do.scale=FALSE, assayName=NULL, name=NULL,
+                  sortRowsOn=NULL, cluster_cols=FALSE, cluster_rows=NULL, 
+                  toporder=NULL, hmcols=NULL, breaks=.getDef("breaks"), 
+                  gaps_at=NULL, gaps_row=NULL, left_annotation=NULL,
                   right_annotation=NULL, top_annotation=NULL,
                   bottom_annotation=NULL, anno_colors=list(),
                   show_rownames=NULL, show_colnames=FALSE,
@@ -94,7 +93,7 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
       features <- row.names(se)[features]
   if(is.factor(features)) features <- as.character(features)
   stopifnot(is.character(features))
-
+  
   assayName <- .chooseAssay(se, assayName, returnName = TRUE)
   if(is.null(name)){
       if(is.numeric(assayName)){
@@ -106,6 +105,16 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL,
 
   x <- .prepData(se, genes=features, do.scale=do.scale, assayName=assayName,
                  includeMissing=includeMissing )
+  
+  if(is.null(sortRowsOn) && is.null(cluster_rows)){
+    if(nrow(x)>1500){
+      message("Row sorting/clustering disable by default due to heatmap size.")
+      sortRowsOn <- cluster_rows <- FALSE
+    }else{
+      sortRowsOn <- seq_len(ncol(se))
+    }
+  }
+  if(!is.null(sortRowsOn)) cluster_rows <- FALSE
 
   toporder <- .parseToporder(rowData(se)[row.names(x),,drop=FALSE], toporder)
   row_order <- NULL
