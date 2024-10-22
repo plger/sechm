@@ -431,6 +431,10 @@ getDEA <- function(se, dea=NULL, homogenize=FALSE, sort=TRUE){
   deas <- lapply(deas, FUN=function(x){
     x <- rowData(se)[[x]]
     if(homogenize) x <- homogenizeDEA(x)
+    if(sort){
+      cn <- grep("P\\.Value|pvalue|p_value|pval", colnames(x), value=TRUE)
+      if(length(cn)>0) x <- x[order(x[,cn[1]]),]
+    }
     x
   })
   if(!is.null(dea)){
@@ -454,12 +458,7 @@ getDEA <- function(se, dea=NULL, homogenize=FALSE, sort=TRUE){
   if(length(deas)==0) return(list())
   deas <- deas[!unlist(lapply(deas, is.null))]
   lapply(deas, FUN=function(x){
-    x <- x[!is.na(x[,1]),]
-    if(sort){
-      cn <- grep("P\\.Value|pvalue|p_value|pval", colnames(x), value=TRUE)
-      if(length(cn)>0) x <- x[order(x[,cn[1]]),]
-    }
-    x
+    x[!is.na(x[,1]),]
   })
 }
 
