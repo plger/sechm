@@ -413,6 +413,7 @@ safescale <- function(x, center=TRUE, byRow=FALSE){
 #'   prefixed with "DEA."
 #' @param dea The optional name of the DEA to extract
 #' @param homogenize Logical; whether to homogenize the DEA
+#' @param sort Logical; whether to return the table sorted by significance
 #'
 #' @return The DEA data.frame if `dea` is given, otherwise a named list of
 #'   data.frames.
@@ -423,7 +424,7 @@ safescale <- function(x, center=TRUE, byRow=FALSE){
 #' data("Chen2017", package="sechm")
 #' # this ones doesn't have saved DEAs in the standard format:
 #' getDEA(Chen2017)
-getDEA <- function(se, dea=NULL, homogenize=FALSE){
+getDEA <- function(se, dea=NULL, homogenize=FALSE, sort=TRUE){
   stopifnot(is(se,"SummarizedExperiment"))
   deas <- grep("^DEA\\.", colnames(rowData(se)), value=TRUE)
   names(deas) <- gsub("^DEA\\.", "", deas)
@@ -451,7 +452,15 @@ getDEA <- function(se, dea=NULL, homogenize=FALSE){
     return(NULL)
   }
   if(length(deas)==0) return(list())
-  deas[!unlist(lapply(deas, is.null))]
+  deas <- deas[!unlist(lapply(deas, is.null))]
+  lapply(deas, FUN=function(x){
+    x <- x[!is.na(x[,1]),]
+    if(sort){
+      cn <- grep("P\\.Value|pvalue|p_value|pval", colnames(x), value=TRUE)
+      if(length(cn)>0) x <- x[order(x[,cn[1]]),]
+    }
+    x
+  })
 }
 
 #' Get DEGs from a SE or list of DEA results

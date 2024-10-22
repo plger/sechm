@@ -4,7 +4,7 @@
 \alias{getDEA}
 \title{getDEA}
 \usage{
-getDEA(se, dea = NULL, homogenize = FALSE)
+getDEA(se, dea = NULL, homogenize = FALSE, sort = TRUE)
 }
 \arguments{
 \item{se}{A \code{\link[SummarizedExperiment]{SummarizedExperiment-class}},
@@ -14,6 +14,8 @@ prefixed with "DEA."}
 \item{dea}{The optional name of the DEA to extract}
 
 \item{homogenize}{Logical; whether to homogenize the DEA}
+
+\item{sort}{Logical; whether to return the table sorted by significance}
 }
 \value{
 The DEA data.frame if `dea` is given, otherwise a named list of
