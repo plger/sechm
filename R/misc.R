@@ -432,7 +432,7 @@ getDEA <- function(se, dea=NULL, homogenize=FALSE, sort=TRUE){
     x <- rowData(se)[[x]]
     if(homogenize) x <- homogenizeDEA(x)
     if(sort){
-      cn <- grep("P\\.Value|pvalue|p_value|pval", colnames(x), value=TRUE)
+      cn <- grep("PValue|P\\.Value|pvalue|p_value|pval", colnames(x), value=TRUE)
       if(length(cn)>0) x <- x[order(x[,cn[1]]),]
     }
     x
