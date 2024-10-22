@@ -85,7 +85,7 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL, name=NULL,
   if(is.list(features)){
     if(!is.null(gaps_row))
       warning("`gaps_row` ignored when passing a list of features")
-    gaps_row <- rep(factor(names(features)),lengths(features))
+    gaps_row <- rep(factor(names(features),names(features)),lengths(features))
     names(gaps_row) <- features <- unlist(features)
   }
   stopifnot(is.vector(features))
