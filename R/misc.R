@@ -514,6 +514,9 @@ homogenizeDEA <- function(x){
   if(!is.data.frame(x)) return(NULL)
   colnames(x) <- gsub("log2FoldChange|log2Fold|log2FC|log2\\(fold_change\\)|log2\\.fold_change\\.",
                       "logFC", colnames(x))
+  if(!any(colnames(x)=="logFC") & (length(w <- grep("logFC",colnames(x)))>0)){
+    x$logFC <- rowMeans(as.matrix(x[,w,drop=FALSE]))
+  }
 
   abf <- head(intersect(colnames(x),
                         c("logCPM", "meanExpr", "AveExpr", "baseMean")), 1)
@@ -524,7 +527,7 @@ homogenizeDEA <- function(x){
     x$meanExpr <- log(1+x$value_1+x$value_2)
   }
   colnames(x) <- gsub("P\\.Value|pvalue|p_value|pval", "PValue", colnames(x))
-  colnames(x) <- gsub("padj|adj\\.P\\.Val|q_value|qval", "FDR", colnames(x))
+  colnames(x) <- gsub("padj|adj\\.P\\.Val|q_value|qval|p_adj.loc|ihw", "FDR", colnames(x))
   if (!("FDR" %in% colnames(x)))
     x$FDR <- p.adjust(x$PValue, method = "fdr")
   f <- grep("^logFC$",colnames(x),value=TRUE)
