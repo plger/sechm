@@ -526,8 +526,9 @@ homogenizeDEA <- function(x){
   }else if(all(c("value_1","value_2") %in% colnames(x))){ # cufflinks
     x$meanExpr <- log(1+x$value_1+x$value_2)
   }
-  colnames(x) <- gsub("P\\.Value|pvalue|p_value|pval", "PValue", colnames(x))
-  colnames(x) <- gsub("padj|adj\\.P\\.Val|q_value|qval|p_adj.loc|ihw", "FDR", colnames(x))
+  colnames(x) <- gsub("P\\.Value|pvalue|p_value|pval|p_val", "PValue", colnames(x))
+  colnames(x) <- gsub("padj|adj\\.P\\.Val|q_value|qval|p_adj\\.loc", "FDR", colnames(x))
+  if (!("FDR" %in% colnames(x))) colnames(x) <- gsub("ihw", "FDR", colnames(x))
   if (!("FDR" %in% colnames(x)))
     x$FDR <- p.adjust(x$PValue, method = "fdr")
   f <- grep("^logFC$",colnames(x),value=TRUE)
