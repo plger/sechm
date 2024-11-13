@@ -48,9 +48,14 @@ meltSE <- function(x, features, assayName=NULL, colDat.columns=NULL,
   df <- cbind(df, .flattenDF(colData(x)[rep(seq_len(ncol(x)),each=length(features)),
                                         colDat.columns, drop=FALSE],
                              remove=!flatten))
-  df <- cbind(df, .flattenDF(rowData(x)[rep(features, ncol(x)),
-                                        rowDat.columns, drop=FALSE],
-                             remove=!flatten))
+  
+  rd <- rowData(x)[, rowDat.columns, drop=FALSE]
+  rd <- tryCatch(.flatterDF(rd, remove=!flatten),
+                 error=function(e){
+                   .flatterDF(rd, remove=TRUE)
+                 })
+  df <- cbind(df, rd[rep(features, ncol(x)),,drop=FALSE])
+  
   if(baseDF){
     for(f in colnames(df)){
       if(!is.vector(df[[f]]) && !is.factor(df[[f]])) df[[f]] <- NULL
