@@ -50,7 +50,7 @@ meltSE <- function(x, features, assayName=NULL, colDat.columns=NULL,
                              remove=!flatten))
   
   rd <- rowData(x)[, rowDat.columns, drop=FALSE]
-  rd <- tryCatch(.flatterDF(rd, remove=!flatten),
+  rd <- tryCatch(.flattenDF(rd, remove=!flatten),
                  error=function(e){
                    .flatterDF(rd, remove=TRUE)
                  })
