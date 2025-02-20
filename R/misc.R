@@ -363,7 +363,7 @@ safescale <- function(x, center=TRUE, byRow=FALSE){
         if(is.null(names(anno_colors[[i]])) && is.numeric(an[[i]])){
           anno_colors[[i]] <- circlize::colorRamp2(
             seq(min(an[[i]], na.rm=TRUE), max(an[[i]], na.rm=TRUE),
-                length(anno_colors[[i]])), anno_colors[[i]])
+                length.out=length(anno_colors[[i]])), anno_colors[[i]])
         }else if(!is.null(names(anno_colors[[i]]))){
           w <- intersect(names(anno_colors[[i]]),unique(an[[i]]))
           if(length(w)==0){
