@@ -93,6 +93,8 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL, name=NULL,
       features <- row.names(se)[features]
   if(is.factor(features)) features <- as.character(features)
   stopifnot(is.character(features))
+  if(length(intersect(features, row.names(se)))==0)
+    stop("None of the features were found in the object.")
   
   assayName <- .chooseAssay(se, assayName, returnName = TRUE)
   if(is.null(name)){
@@ -105,6 +107,9 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL, name=NULL,
 
   x <- .prepData(se, genes=features, do.scale=do.scale, assayName=assayName,
                  includeMissing=includeMissing )
+  if(nrow(x)<3){
+    sortRowsOn <- cluster_rows <- FALSE
+  }
   
   if(is.null(sortRowsOn) && is.null(cluster_rows)){
     if(nrow(x)>1500){
