@@ -357,15 +357,22 @@ safescale <- function(x, center=TRUE, byRow=FALSE){
         if(!(i %in% names(anno_colors))){
           anno_colors[[i]] <- c("FALSE"="white", "TRUE"="darkblue")
         }
-      }else if(!is.null(anno_colors[[i]]) &&
-               !is.function(anno_colors[[i]])){
-        if(i %in% names(anno_colors)){
+      }else if(!is.null(anno_colors[[i]])){
+        if(is.function(anno_colors[[i]]) || length(anno_colors[[i]])<2)
+          warning("Wrong type of annotation colors for `", i,"`.")
+        if(is.null(names(anno_colors[[i]])) && is.numeric(an[[i]])){
+          anno_colors[[i]] <- circlize::colorRamp2(
+            seq(min(an[[i]], na.rm=TRUE), max(an[[i]], na.rm=TRUE),
+                length(anno_colors[[i]])), anno_colors[[i]])
+        }else if(!is.null(names(anno_colors[[i]]))){
           w <- intersect(names(anno_colors[[i]]),unique(an[[i]]))
           if(length(w)==0){
             anno_colors[[i]] <- NULL
           }else{
             anno_colors[[i]] <- anno_colors[[i]][w]
           }
+        }else{
+          anno_colors[[i]] <- NULL
         }
       }
     }
