@@ -69,7 +69,7 @@ meltSE <- function(x, features, assayName=NULL, colDat.columns=NULL,
 
 .flattenDF <- function(x, columns=colnames(x), remove=FALSE){
   x <- DataFrame(x)
-  colnames(x) <- make.names(x)
+  colnames(x) <- make.names(colnames(x))
   x <- DataFrame(x)[,make.names(columns),drop=FALSE]
   if(ncol(x)==0) return(x)
   isdf <- unlist(lapply(x, FUN=function(x) is.data.frame(x) || is(x, "DFrame")))
