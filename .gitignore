@@ -1,7 +1,6 @@
 # RStudio files
 .Rproj.user/
 SEtools.Rproj
-.Rbuildignore
 
 # knitr and R markdown default cache directories
 /*_cache/
