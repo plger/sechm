@@ -123,7 +123,8 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL, name=NULL,
 
   toporder <- .parseToporder(rowData(se)[row.names(x),,drop=FALSE], toporder)
   row_order <- NULL
-  if(!is.null(sortRowsOn) && length(sortRowsOn)>0 && nrow(x)>2){
+  if(!is.null(sortRowsOn) && !isFALSE(sortRowsOn) && length(sortRowsOn)>0 && 
+     nrow(x)>2){
     x2 <- sortRows(x[,sortRowsOn,drop=FALSE], toporder=toporder,
                    na.rm=TRUE, method=sort.method)
     row_order <- row.names(x2)
