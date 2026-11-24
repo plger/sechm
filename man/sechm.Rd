@@ -127,7 +127,8 @@ applied to all top and bottom annotations. If longer then one, the values
 must correspond to the names given in `top_annotation`, and indicate which
 ones should have the text written or not (a named logical vector can also
 be used). Only applies when the annotations are specified by `colData` 
-column names, and if `cluster_cols=FALSE`.}
+column names. Labels are centered on each contiguous run of identical
+values, as displayed (so after column splitting/ordering).}
 
 \item{anno_label_gp}{Optional list with any of `size` (font size in points,
 default 9), `col` (text color, by default black or white depending on the

@@ -60,7 +60,8 @@
 #'   must correspond to the names given in `top_annotation`, and indicate which
 #'   ones should have the text written or not (a named logical vector can also
 #'   be used). Only applies when the annotations are specified by `colData` 
-#'   column names, and if `cluster_cols=FALSE`.
+#'   column names. Labels are centered on each contiguous run of identical
+#'   values, as displayed (so after column splitting/ordering).
 #' @param anno_label_gp Optional list with any of `size` (font size in points,
 #' default 9), `col` (text color, by default black or white depending on the
 #' background) and `fontface` (default "bold"). Ignored if `anno_labels=FALSE`.
@@ -238,17 +239,13 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL, name=NULL,
   gaps_row <- .getGaps(gaps_row, rowData(se)[row.names(x),,drop=FALSE])
 
   if(!is.null(anno_labels) && !isFALSE(anno_labels)){
-    if(isTRUE(cluster_cols)){
-      warning("`anno_labels` ignored when clustering columns.")
-    }else{
-      cd <- as.data.frame(colData(se))[colnames(x),,drop=FALSE]
+    {
       for(an in c("top_annotation","bottom_annotation")){
         if(!is.null(a <- get(an)) && is(a, "HeatmapAnnotation") &&
            identical(a@which,"column")){
           flds <- .getLabelFields(anno_labels, a, top_fields,
                                   isTRUE(an=="top_annotation"))
-          a <- do.call(.labelAnno, c(list(a, cd, flds, split=gaps_col),
-                                     anno_label_gp))
+          a <- do.call(.labelAnno, c(list(a, flds), anno_label_gp))
           assign(an, a)
         }
       }

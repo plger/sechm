@@ -677,62 +677,56 @@ setRowAttr <- function(se, values, name="cluster", clear=TRUE, other=NA){
 
 
 #' Writes labels directly on the (column) annotation bars of an
-#' HeatmapAnnotation: one label per contiguous run of identical values (within
-#' column slices), written at the center of the run.
+#' HeatmapAnnotation: one label per contiguous run of identical values, as
+#' displayed (i.e. within column slices, after any reordering), centered on the
+#' run.
 #' @param anno A column HeatmapAnnotation
-#' @param df A data.frame of the annotation values (one row per column of the
-#' heatmap, in plotting order)
 #' @param fields The names of the annotations to label
-#' @param split Optional vector (length nrow(df)) defining the column slices
 #' @param size Font size (in points)
 #' @param col Text color; if NULL (default), black or white depending on the
 #' background
 #' @param fontface Font face
 #' @noRd
 #' @importFrom grDevices col2rgb
-#' @importFrom grid unit
-.labelAnno <- function(anno, df, fields, split=NULL, size=9, col=NULL,
-                       fontface="bold"){
-  fields <- intersect(fields, intersect(names(anno@anno_list), colnames(df)))
-  n <- nrow(df)
-  if(is.null(split)) split <- rep(1L, n)
-  if(is.data.frame(split) || is.matrix(split))
-    split <- do.call(paste, c(as.data.frame(split), sep="\r"))
-  split <- as.integer(factor(split))
+#' @importFrom grid grid.text unit gpar
+.labelAnno <- function(anno, fields, size=8, col=NULL, fontface="bold"){
+  fields <- intersect(fields, names(anno@anno_list))
   for(f in fields){
     sa <- anno@anno_list[[f]]
     env <- sa@fun@var_env
     if(!identical(sa@fun@fun_name, "anno_simple") || is.null(env$color_mapping))
       next
-    v <- as.character(df[[f]])
-    # id of contiguous runs within slices
-    newrun <- c(TRUE, v[-1]!=v[-n] | split[-1]!=split[-n] |
-                  (is.na(v[-1]) != is.na(v[-n])))
-    run <- cumsum(newrun)
-    labs <- rep(NA_character_, n)
-    for(r in unique(run)){
-      w <- which(run==r)
-      if(is.na(v[w[1]])) next
-      labs[w[ceiling(length(w)/2)]] <- v[w[1]]
+    env$.orig_fun <- sa@fun@fun
+    env$.lab <- list(size=size, col=col, fontface=fontface)
+    wrapper <- function(index, k=NULL, n=NULL){
+      .orig_fun(index, k, n)
+      v <- value[index]
+      n <- length(index)
+      if(n==0) return(invisible(NULL))
+      brk <- c(TRUE, v[-1]!=v[-n] | (is.na(v[-1]) != is.na(v[-n])))
+      brk[is.na(brk)] <- FALSE
+      run <- cumsum(brk)
+      for(r in unique(run)){
+        w <- which(run==r)
+        if(is.na(v[w[1]])) next
+        bg <- ComplexHeatmap::map_to_colors(color_mapping, v[w[1]])
+        tcol <- .lab$col
+        if(is.null(tcol)){
+          lum <- sum(grDevices::col2rgb(bg)*c(0.299,0.587,0.114))/255
+          tcol <- ifelse(lum>0.55, "black", "white")
+        }
+        grid::grid.text(as.character(v[w[1]]), x=(mean(range(w))-0.5)/n,
+                        y=0.5, just="center",
+                        gp=grid::gpar(fontsize=.lab$size, col=tcol,
+                                      fontface=.lab$fontface))
+      }
     }
-    bg <- rep("white", n)
-    ok <- !is.na(df[[f]])
-    bg[ok] <- ComplexHeatmap::map_to_colors(env$color_mapping, df[[f]][ok])
-    tcol <- col
-    if(is.null(tcol)){
-      lum <- colSums(col2rgb(bg)*c(0.299,0.587,0.114))/255
-      tcol <- ifelse(lum>0.55, "black", "white")
-    }
-    env$pch <- labs
-    env$pt_size <- rep(unit(size,"pt"), n)
-    env$pt_gp <- gpar(col=rep(tcol, length.out=n), fontface=fontface)
-    sa@fun@var_env <- env
-    sa@fun@subset_rule$pch <- sa@fun@subset_rule$pt_size <- function(x, i) x[i]
+    environment(wrapper) <- env
+    sa@fun@fun <- wrapper
     anno@anno_list[[f]] <- sa
   }
   anno
 }
-
 
 # resolves the `anno_labels` argument into annotation names for a given
 # HeatmapAnnotation `a`; `fields` are the original top_annotation fields
