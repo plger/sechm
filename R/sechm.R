@@ -54,6 +54,20 @@
 #' @param show_heatmap_legend Logical; whether to show heatmap legend
 #' @param sort.method Row sorting method (see \code{\link{sortRows}})
 #' @param na_col Color of NA values
+#' @param anno_labels Logical indicating whether to write the names of the 
+#'   annotation levels directly in the annotation. If of length 1, this is 
+#'   applied to all top and bottom annotations. If longer then one, the values
+#'   must correspond to the names given in `top_annotation`, and indicate which
+#'   ones should have the text written or not (a named logical vector can also
+#'   be used). Only applies when the annotations are specified by `colData` 
+#'   column names, and if `cluster_cols=FALSE`.
+#' @param anno_label_gp Optional list with any of `size` (font size in points,
+#' default 9), `col` (text color, by default black or white depending on the
+#' background) and `fontface` (default "bold"). Ignored if `anno_labels=FALSE`.
+#' @param anno_size Size of each annotation track (height of each row of
+#' column annotations, width of each row annotation), either as a
+#' \code{\link[grid]{unit}} or a number (in mm). Defaults to ComplexHeatmap's
+#' default (`ht_opt$simple_anno_size`, 5mm).
 #' @param ... Further arguments passed to `Heatmap`
 #'
 #' @return A a \code{\link[ComplexHeatmap]{Heatmap-class}}.
@@ -80,7 +94,8 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL, name=NULL,
                   show_annotation_legend=TRUE, mark=NULL, na_col="white",
                   annorow_title_side=ifelse(show_colnames,"bottom","top"),
                   annocol_title_side="right", includeMissing=FALSE,
-                  sort.method="MDS_angle", ...){
+                  sort.method="MDS_angle", anno_labels=NULL,
+                  anno_label_gp=list(), anno_size=NULL, ...){
 
   if(is.list(features)){
     if(!is.null(gaps_row))
@@ -161,7 +176,8 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL, name=NULL,
         left_annotation, whichComplex="row", show_legend=show_annotation_legend,
         show_annotation_name=!is.na(annorow_title_side),
         anno_name_side=ifelse(is.na(annorow_title_side), "top",
-                              annorow_title_side))
+                              annorow_title_side),
+        simple_anno_size=anno_size)
     }else{
       left_annotation <- NULL
     }
@@ -173,7 +189,8 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL, name=NULL,
         rowData(se)[row.names(x),,drop=FALSE], anno_colors,
         right_annotation, whichComplex="row",
         show_legend=show_annotation_legend,
-        show_annotation_name=!is.na(annorow_title_side), highlight=mark)
+        show_annotation_name=!is.na(annorow_title_side), highlight=mark,
+        simple_anno_size=anno_size)
     }else{
       right_annotation <- NULL
     }
@@ -183,6 +200,7 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL, name=NULL,
     right_annotation <- rowAnnotation(highlight=mark)
   }
 
+  top_fields <- if(is.character(top_annotation)) top_annotation else NULL
   if(!is(top_annotation,"HeatmapAnnotation")){
     if(length(top_annotation)>0 && is.character(top_annotation)){
       top_annotation <- .prepareAnnoDF(
@@ -190,7 +208,8 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL, name=NULL,
         show_legend=(show_annotation_legend && !isMult),
         show_annotation_name=(!is.na(annocol_title_side) && !isMult),
         anno_name_side=ifelse(is.na(annocol_title_side), "right",
-                              annocol_title_side) )
+                              annocol_title_side),
+        simple_anno_size=anno_size)
     }else{
       top_annotation <- NULL
     }
@@ -202,7 +221,8 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL, name=NULL,
         show_legend=(show_annotation_legend && !isMult),
         show_annotation_name=(!is.na(annocol_title_side) && !isMult),
         anno_name_side=ifelse(is.na(annocol_title_side), "right",
-                              annocol_title_side) )
+                              annocol_title_side),
+        simple_anno_size=anno_size)
     }else{
       bottom_annotation <- NULL
     }
@@ -216,6 +236,24 @@ sechm <- function(se, features, do.scale=FALSE, assayName=NULL, name=NULL,
   if(isFALSE(gaps_at)) gaps_at <- NULL
   gaps_col <- .getGaps(gaps_at, colData(se), silent=TRUE)
   gaps_row <- .getGaps(gaps_row, rowData(se)[row.names(x),,drop=FALSE])
+
+  if(!is.null(anno_labels) && !isFALSE(anno_labels)){
+    if(isTRUE(cluster_cols)){
+      warning("`anno_labels` ignored when clustering columns.")
+    }else{
+      cd <- as.data.frame(colData(se))[colnames(x),,drop=FALSE]
+      for(an in c("top_annotation","bottom_annotation")){
+        if(!is.null(a <- get(an)) && is(a, "HeatmapAnnotation") &&
+           identical(a@which,"column")){
+          flds <- .getLabelFields(anno_labels, a, top_fields,
+                                  isTRUE(an=="top_annotation"))
+          a <- do.call(.labelAnno, c(list(a, cd, flds, split=gaps_col),
+                                     anno_label_gp))
+          assign(an, a)
+        }
+      }
+    }
+  }
 
   if(is.null(show_rownames)) show_rownames <- nrow(x)<50 && is.null(mark)
   if(nrow(x)<=2) cluster_rows <- FALSE

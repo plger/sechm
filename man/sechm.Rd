@@ -34,6 +34,9 @@ sechm(
   annocol_title_side = "right",
   includeMissing = FALSE,
   sort.method = "MDS_angle",
+  anno_labels = NULL,
+  anno_label_gp = list(),
+  anno_size = NULL,
   ...
 )
 }
@@ -117,6 +120,23 @@ Alternatively, an `HeatmapAnnotation` object.}
 FALSE)}
 
 \item{sort.method}{Row sorting method (see \code{\link{sortRows}})}
+
+\item{anno_labels}{Logical indicating whether to write the names of the 
+annotation levels directly in the annotation. If of length 1, this is 
+applied to all top and bottom annotations. If longer then one, the values
+must correspond to the names given in `top_annotation`, and indicate which
+ones should have the text written or not (a named logical vector can also
+be used). Only applies when the annotations are specified by `colData` 
+column names, and if `cluster_cols=FALSE`.}
+
+\item{anno_label_gp}{Optional list with any of `size` (font size in points,
+default 9), `col` (text color, by default black or white depending on the
+background) and `fontface` (default "bold"). Ignored if `anno_labels=FALSE`.}
+
+\item{anno_size}{Size of each annotation track (height of each row of
+column annotations, width of each row annotation), either as a
+\code{\link[grid]{unit}} or a number (in mm). Defaults to ComplexHeatmap's
+default (`ht_opt$simple_anno_size`, 5mm).}
 
 \item{...}{Further arguments passed to `Heatmap`}
 }

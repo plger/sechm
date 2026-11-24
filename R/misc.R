@@ -340,7 +340,10 @@ safescale <- function(x, center=TRUE, byRow=FALSE){
 .prepareAnnoDF <- function(an, anno_colors, fields, whichComplex=NULL,
                            show_legend=TRUE, show_annotation_name=TRUE,
                            dropEmptyLevels=TRUE, anno_name_side=NULL,
-                           highlight=NULL){
+                           highlight=NULL, simple_anno_size=NULL){
+  if(is.null(simple_anno_size)) simple_anno_size <- ht_opt$simple_anno_size
+  if(is.numeric(simple_anno_size))
+    simple_anno_size <- unit(simple_anno_size, "mm")
   if(!is.null(whichComplex))
     whichComplex <- match.arg(whichComplex, c("row","column"))
   an <- an[,intersect(fields, colnames(an)),drop=FALSE]
@@ -385,13 +388,15 @@ safescale <- function(x, center=TRUE, byRow=FALSE){
                             which=whichComplex,
                             annotation_name_side=anno_name_side,
                             show_annotation_name=show_annotation_name,
-                            highlight=highlight )
+                            highlight=highlight,
+                            simple_anno_size=simple_anno_size)
   }else{
     an <- HeatmapAnnotation(df=an, show_legend=show_legend, na_col="white",
                             which=whichComplex, col=anno_colors,
                             annotation_name_side=anno_name_side,
                             show_annotation_name=show_annotation_name,
-                            highlight=highlight)
+                            highlight=highlight,
+                            simple_anno_size=simple_anno_size)
   }
   an
 }
@@ -668,4 +673,80 @@ setRowAttr <- function(se, values, name="cluster", clear=TRUE, other=NA){
   if(clear || is.null(rowData(se)[[name]])) rowData(se)[[name]] <- other
   rowData(se)[names(values),name] <- as.vector(values)
   se
+}
+
+
+#' Writes labels directly on the (column) annotation bars of an
+#' HeatmapAnnotation: one label per contiguous run of identical values (within
+#' column slices), written at the center of the run.
+#' @param anno A column HeatmapAnnotation
+#' @param df A data.frame of the annotation values (one row per column of the
+#' heatmap, in plotting order)
+#' @param fields The names of the annotations to label
+#' @param split Optional vector (length nrow(df)) defining the column slices
+#' @param size Font size (in points)
+#' @param col Text color; if NULL (default), black or white depending on the
+#' background
+#' @param fontface Font face
+#' @noRd
+#' @importFrom grDevices col2rgb
+#' @importFrom grid unit
+.labelAnno <- function(anno, df, fields, split=NULL, size=9, col=NULL,
+                       fontface="bold"){
+  fields <- intersect(fields, intersect(names(anno@anno_list), colnames(df)))
+  n <- nrow(df)
+  if(is.null(split)) split <- rep(1L, n)
+  if(is.data.frame(split) || is.matrix(split))
+    split <- do.call(paste, c(as.data.frame(split), sep="\r"))
+  split <- as.integer(factor(split))
+  for(f in fields){
+    sa <- anno@anno_list[[f]]
+    env <- sa@fun@var_env
+    if(!identical(sa@fun@fun_name, "anno_simple") || is.null(env$color_mapping))
+      next
+    v <- as.character(df[[f]])
+    # id of contiguous runs within slices
+    newrun <- c(TRUE, v[-1]!=v[-n] | split[-1]!=split[-n] |
+                  (is.na(v[-1]) != is.na(v[-n])))
+    run <- cumsum(newrun)
+    labs <- rep(NA_character_, n)
+    for(r in unique(run)){
+      w <- which(run==r)
+      if(is.na(v[w[1]])) next
+      labs[w[ceiling(length(w)/2)]] <- v[w[1]]
+    }
+    bg <- rep("white", n)
+    ok <- !is.na(df[[f]])
+    bg[ok] <- ComplexHeatmap::map_to_colors(env$color_mapping, df[[f]][ok])
+    tcol <- col
+    if(is.null(tcol)){
+      lum <- colSums(col2rgb(bg)*c(0.299,0.587,0.114))/255
+      tcol <- ifelse(lum>0.55, "black", "white")
+    }
+    env$pch <- labs
+    env$pt_size <- rep(unit(size,"pt"), n)
+    env$pt_gp <- gpar(col=rep(tcol, length.out=n), fontface=fontface)
+    sa@fun@var_env <- env
+    sa@fun@subset_rule$pch <- sa@fun@subset_rule$pt_size <- function(x, i) x[i]
+    anno@anno_list[[f]] <- sa
+  }
+  anno
+}
+
+
+# resolves the `anno_labels` argument into annotation names for a given
+# HeatmapAnnotation `a`; `fields` are the original top_annotation fields
+.getLabelFields <- function(x, a, fields, isTop=TRUE){
+  nms <- names(a@anno_list)
+  if(is.logical(x) && is.null(names(x)) && length(x)==1)
+    return(if(is.na(x) || !x) NULL else nms)
+  if(is.logical(x)){
+    if(!is.null(names(x))) return(intersect(names(x)[which(x)], nms))
+    if(!isTop) return(NULL)
+    if(length(x)!=length(fields))
+      stop("A logical `anno_labels` should have the same length as ",
+           "`top_annotation` (", length(fields), ").")
+    return(intersect(fields[which(x)], nms))
+  }
+  intersect(as.character(x), nms)
 }
