@@ -1,3 +1,5 @@
+Changes in version 1.17.3
++ added the commonScale function
 Changes in version 1.9.4 (2023-07-14)
 + row ordering now changed in the heatmap rather than matrix
 + fixed a few bugs, added a few extras
